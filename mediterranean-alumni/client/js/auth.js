@@ -1,6 +1,7 @@
 /**
  * Authentication Module for Mediterranean College Alumni Network
  * Handles user login, registration, and session management
+ * DEMO VERSION: Using mock data instead of API calls
  */
 
 // Store auth token in localStorage
@@ -10,9 +11,33 @@ let currentUser = null;
 // Parse JWT token (if any) and get user data
 if (authToken) {
     try {
-        const payload = JSON.parse(atob(authToken.split('.')[1]));
-        currentUser = payload;
-        updateUIForLoggedInUser(currentUser);
+        // In a real app this would decode the JWT token
+        // For demo, we'll just check if the token matches our mock admin user
+        if (authToken === 'admin-token') {
+            currentUser = {
+                id: 101,
+                firstName: 'Admin',
+                lastName: 'User',
+                email: 'admin@medcollege.edu',
+                role: 'admin'
+            };
+            updateUIForLoggedInUser(currentUser);
+        } else if (authToken === 'user-token') {
+            // Sample user token
+            currentUser = window.mockData?.alumni[0] || {
+                id: 1,
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john.smith@example.com',
+                role: 'user',
+                schoolId: 2,
+                schoolName: 'School of Computing'
+            };
+            updateUIForLoggedInUser(currentUser);
+        } else {
+            localStorage.removeItem('authToken');
+            authToken = null;
+        }
     } catch (e) {
         console.error('Invalid token format', e);
         localStorage.removeItem('authToken');
@@ -22,6 +47,7 @@ if (authToken) {
 
 /**
  * Handles the login form submission
+ * DEMO: Uses hardcoded credentials instead of API calls
  */
 document.getElementById('login-form-element')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -30,31 +56,42 @@ document.getElementById('login-form-element')?.addEventListener('submit', async 
     const password = document.getElementById('login-password').value;
     
     try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'Login failed');
+        // Demo implementation with hardcoded credentials
+        if (email === 'admin@medcollege.edu' && password === 'admin123') {
+            // Admin login
+            authToken = 'admin-token';
+            localStorage.setItem('authToken', authToken);
+            currentUser = {
+                id: 101,
+                firstName: 'Admin',
+                lastName: 'User',
+                email: 'admin@medcollege.edu',
+                role: 'admin'
+            };
+            
+            updateUIForLoggedInUser(currentUser);
+            showPage('home-page');
+            alert('Admin login successful!');
+        } else if (email === 'john.smith@example.com' && password === 'password123') {
+            // Regular user login
+            authToken = 'user-token';
+            localStorage.setItem('authToken', authToken);
+            currentUser = window.mockData?.alumni[0] || {
+                id: 1,
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john.smith@example.com',
+                role: 'user',
+                schoolId: 2,
+                schoolName: 'School of Computing'
+            };
+            
+            updateUIForLoggedInUser(currentUser);
+            showPage('home-page');
+            alert('Login successful!');
+        } else {
+            throw new Error('Invalid email or password');
         }
-        
-        // Store token and user info
-        authToken = data.token;
-        localStorage.setItem('authToken', authToken);
-        currentUser = data.user;
-        
-        // Update UI based on user role
-        updateUIForLoggedInUser(currentUser);
-        
-        // Show home page
-        showPage('home-page');
-        
     } catch (error) {
         alert(error.message);
         console.error('Login error:', error);
@@ -63,6 +100,7 @@ document.getElementById('login-form-element')?.addEventListener('submit', async 
 
 /**
  * Handles the registration form submission
+ * DEMO: Simulates registration without API call
  */
 document.getElementById('register-form-element')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -91,26 +129,35 @@ document.getElementById('register-form-element')?.addEventListener('submit', asy
     }
     
     try {
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
+        // In a real app, this would be a POST request to register
+        // For demo purposes, we'll just show a success message
         
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'Registration failed');
+        // Add to pending applications if mock data is available
+        if (window.mockData && window.mockData.pendingApplications) {
+            const newPendingApp = {
+                id: 204, // Generate a new ID
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                schoolId: parseInt(formData.schoolId),
+                schoolName: window.mockData.schools.find(s => s.id.toString() === formData.schoolId)?.name || '',
+                graduationYear: parseInt(formData.graduationYear),
+                degree: formData.degree,
+                currentPosition: formData.currentPosition,
+                company: formData.company,
+                bio: formData.bio,
+                isPublic: formData.isPublic
+            };
+            
+            window.mockData.pendingApplications.push(newPendingApp);
         }
         
         // Show success message and redirect to login
-        alert('Registration successful! Please log in.');
+        alert('Registration successful! Your application is pending approval.');
         showPage('login-form');
         
     } catch (error) {
-        alert(error.message);
+        alert(error.message || 'Registration failed');
         console.error('Registration error:', error);
     }
 });
@@ -131,6 +178,7 @@ document.getElementById('logout-btn')?.addEventListener('click', (e) => {
     
     // Redirect to home page
     showPage('home-page');
+    alert('You have been logged out.');
 });
 
 /**
@@ -210,3 +258,26 @@ window.auth = {
     updateUIForLoggedInUser,
     updateUIForLoggedOutUser
 };
+
+// Helper function to handle page navigation
+// This is defined in main.js but needed here for demo purposes
+function showPage(pageId) {
+    if (typeof window.showPage === 'function') {
+        window.showPage(pageId);
+        return;
+    }
+    
+    // Fallback implementation if main.js hasn't loaded yet
+    const pages = document.querySelectorAll('.container > div[id$="-page"], .container > div[id$="-form"], .container > div[id="profile-view"], .container > div[id="profile-edit"]');
+    
+    // Hide all pages
+    pages.forEach(page => {
+        page.style.display = 'none';
+    });
+    
+    // Show the requested page
+    const pageToShow = document.getElementById(pageId);
+    if (pageToShow) {
+        pageToShow.style.display = 'block';
+    }
+}

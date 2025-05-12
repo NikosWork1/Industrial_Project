@@ -1,6 +1,7 @@
 /**
  * Profile Management Module for Mediterranean College Alumni Network
  * Handles viewing and editing user profiles
+ * DEMO VERSION: Using mock data instead of API calls
  */
 
 // Keep track of current profile being viewed
@@ -8,27 +9,67 @@ let currentProfileId = null;
 
 /**
  * Load a user profile by ID
+ * DEMO: Uses mock data instead of API call
  * @param {string} userId - The ID of the user to load
  */
 async function loadProfile(userId) {
     try {
-        const response = await fetch(`/api/users/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
+        // In a real app, this would be a fetch request
+        // For demo, we'll look for the user in our mock data
+        let user;
         
-        if (!response.ok) {
-            throw new Error('Failed to load profile');
+        // Try to find user in mock data
+        if (window.mockData) {
+            // Check admin user first
+            if (userId === '101') {
+                user = {
+                    id: 101,
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    email: 'admin@medcollege.edu',
+                    role: 'admin',
+                    schoolId: null,
+                    schoolName: null,
+                    graduationYear: null,
+                    degree: null,
+                    currentPosition: 'System Administrator',
+                    company: 'Mediterranean College',
+                    bio: 'Administrator account for the Mediterranean College Alumni Network.',
+                    isPublic: false
+                };
+            } else {
+                // Look in alumni/users arrays
+                user = window.mockData.alumni.find(a => a.id.toString() === userId) || 
+                       window.mockData.users.find(u => u.id.toString() === userId);
+            }
         }
         
-        const user = await response.json();
+        // If user not found, use a default one for demo
+        if (!user) {
+            user = {
+                id: parseInt(userId),
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john.smith@example.com',
+                schoolId: 2,
+                schoolName: 'School of Computing',
+                graduationYear: 2018,
+                degree: 'BSc in Computer Science',
+                currentPosition: 'Software Engineer',
+                company: 'Tech Innovations',
+                bio: 'Experienced software engineer with a passion for developing scalable applications. I have contributed to several open-source projects and enjoy mentoring junior developers.',
+                linkedinUrl: 'https://linkedin.com/in/johnsmith',
+                profileImage: null,
+                isPublic: true
+            };
+        }
+        
         displayProfile(user);
         currentProfileId = userId;
         
         // Show edit button if this is the current user's profile
-        const currentUser = window.auth.getCurrentUser();
-        if (currentUser && currentUser.id === userId) {
+        const currentUser = window.auth?.getCurrentUser();
+        if (currentUser && currentUser.id.toString() === userId) {
             document.getElementById('profile-edit-container').style.display = 'block';
         } else {
             document.getElementById('profile-edit-container').style.display = 'none';
@@ -86,22 +127,60 @@ function displayProfile(user) {
 
 /**
  * Load the profile edit form with current user data
+ * DEMO: Uses mock data instead of API call
  */
 async function loadProfileEditForm() {
     if (!currentProfileId) return;
     
     try {
-        const response = await fetch(`/api/users/${currentProfileId}`, {
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
+        // In a real app, this would be a fetch request
+        // For demo, we'll look for the user in our mock data
+        let user;
         
-        if (!response.ok) {
-            throw new Error('Failed to load profile data');
+        // Try to find user in mock data
+        if (window.mockData) {
+            if (currentProfileId === '101') {
+                user = {
+                    id: 101,
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    email: 'admin@medcollege.edu',
+                    role: 'admin',
+                    schoolId: null,
+                    schoolName: null,
+                    graduationYear: null,
+                    degree: null,
+                    currentPosition: 'System Administrator',
+                    company: 'Mediterranean College',
+                    bio: 'Administrator account for the Mediterranean College Alumni Network.',
+                    isPublic: false
+                };
+            } else {
+                // Look in alumni/users arrays
+                user = window.mockData.alumni.find(a => a.id.toString() === currentProfileId) || 
+                       window.mockData.users.find(u => u.id.toString() === currentProfileId);
+            }
         }
         
-        const user = await response.json();
+        // If user not found, use a default one for demo
+        if (!user) {
+            user = {
+                id: parseInt(currentProfileId),
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john.smith@example.com',
+                schoolId: 2,
+                schoolName: 'School of Computing',
+                graduationYear: 2018,
+                degree: 'BSc in Computer Science',
+                currentPosition: 'Software Engineer',
+                company: 'Tech Innovations',
+                bio: 'Experienced software engineer with a passion for developing scalable applications.',
+                linkedinUrl: 'https://linkedin.com/in/johnsmith',
+                profileImage: null,
+                isPublic: true
+            };
+        }
         
         // Create the edit form if it doesn't exist yet
         const profileEditContainer = document.getElementById('profile-edit');
@@ -117,7 +196,13 @@ async function loadProfileEditForm() {
         populateProfileEditForm(user);
         
         // Show the edit form
-        showPage('profile-edit');
+        if (typeof window.showPage === 'function') {
+            window.showPage('profile-edit');
+        } else {
+            // Fallback if main.js hasn't loaded
+            document.getElementById('profile-view').style.display = 'none';
+            document.getElementById('profile-edit').style.display = 'block';
+        }
         
     } catch (error) {
         console.error('Error loading profile data for editing:', error);
@@ -226,33 +311,41 @@ async function populateProfileEditForm(user) {
     document.getElementById('edit-linkedin').value = user.linkedinUrl || '';
     document.getElementById('edit-public-profile').checked = user.isPublic || false;
     
-    // Load schools dropdown
-    try {
-        const response = await fetch('/api/schools');
-        const schools = await response.json();
-        
-        const schoolSelect = document.getElementById('edit-school');
-        schoolSelect.innerHTML = '<option value="" disabled>Select your school</option>';
-        
-        schools.forEach(school => {
-            const option = document.createElement('option');
-            option.value = school.id;
-            option.textContent = school.name;
-            option.selected = school.id == user.schoolId;
-            schoolSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error loading schools:', error);
-    }
+    // Load schools dropdown using mock data
+    const schools = window.mockData?.schools || [
+        { id: 1, name: 'School of Business' },
+        { id: 2, name: 'School of Computing' },
+        { id: 3, name: 'School of Engineering' },
+        { id: 4, name: 'School of Health Sciences' },
+        { id: 5, name: 'School of Humanities' }
+    ];
+    
+    const schoolSelect = document.getElementById('edit-school');
+    schoolSelect.innerHTML = '<option value="" disabled>Select your school</option>';
+    
+    schools.forEach(school => {
+        const option = document.createElement('option');
+        option.value = school.id;
+        option.textContent = school.name;
+        option.selected = school.id == user.schoolId;
+        schoolSelect.appendChild(option);
+    });
     
     // Add event listener to cancel button
     document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-        showPage('profile-view');
+        if (typeof window.showPage === 'function') {
+            window.showPage('profile-view');
+        } else {
+            // Fallback if main.js hasn't loaded
+            document.getElementById('profile-edit').style.display = 'none';
+            document.getElementById('profile-view').style.display = 'block';
+        }
     });
 }
 
 /**
  * Handles profile update form submission
+ * DEMO: Simulates API call with local data update
  * @param {Event} e - The form submit event
  */
 async function handleProfileUpdate(e) {
@@ -260,40 +353,72 @@ async function handleProfileUpdate(e) {
     
     if (!currentProfileId) return;
     
-    const formData = new FormData();
-    formData.append('firstName', document.getElementById('edit-first-name').value);
-    formData.append('lastName', document.getElementById('edit-last-name').value);
-    formData.append('schoolId', document.getElementById('edit-school').value);
-    formData.append('graduationYear', document.getElementById('edit-graduation-year').value);
-    formData.append('degree', document.getElementById('edit-degree').value);
-    formData.append('currentPosition', document.getElementById('edit-current-position').value);
-    formData.append('company', document.getElementById('edit-company').value);
-    formData.append('bio', document.getElementById('edit-bio').value);
-    formData.append('linkedinUrl', document.getElementById('edit-linkedin').value);
-    formData.append('isPublic', document.getElementById('edit-public-profile').checked);
-    
-    // Add profile image if selected
-    const imageInput = document.getElementById('profile-image-upload');
-    if (imageInput.files && imageInput.files[0]) {
-        formData.append('profileImage', imageInput.files[0]);
-    }
+    // In a real app, this would be a FormData object sent to the server
+    // For demo, we'll update the mock data directly
+    const updatedUser = {
+        id: parseInt(currentProfileId),
+        firstName: document.getElementById('edit-first-name').value,
+        lastName: document.getElementById('edit-last-name').value,
+        email: document.getElementById('edit-email').value,
+        schoolId: parseInt(document.getElementById('edit-school').value),
+        schoolName: document.getElementById('edit-school').options[document.getElementById('edit-school').selectedIndex].textContent,
+        graduationYear: parseInt(document.getElementById('edit-graduation-year').value),
+        degree: document.getElementById('edit-degree').value,
+        currentPosition: document.getElementById('edit-current-position').value,
+        company: document.getElementById('edit-company').value,
+        bio: document.getElementById('edit-bio').value,
+        linkedinUrl: document.getElementById('edit-linkedin').value,
+        isPublic: document.getElementById('edit-public-profile').checked,
+        profileImage: null // We'd handle file uploads in a real app
+    };
     
     try {
-        const response = await fetch(`/api/users/${currentProfileId}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            },
-            body: formData
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to update profile');
+        // Update mock data if available
+        if (window.mockData) {
+            // Find the user in the appropriate array
+            if (currentProfileId === '101') {
+                // Admin user - special case
+                Object.assign(window.auth.getCurrentUser(), {
+                    firstName: updatedUser.firstName,
+                    lastName: updatedUser.lastName
+                });
+            } else {
+                // Regular user - find and update in arrays
+                let userIndex = window.mockData.alumni.findIndex(a => a.id.toString() === currentProfileId);
+                if (userIndex !== -1) {
+                    window.mockData.alumni[userIndex] = { ...window.mockData.alumni[userIndex], ...updatedUser };
+                }
+                
+                userIndex = window.mockData.users.findIndex(u => u.id.toString() === currentProfileId);
+                if (userIndex !== -1) {
+                    window.mockData.users[userIndex] = { ...window.mockData.users[userIndex], ...updatedUser };
+                }
+                
+                // Update current user if this is the logged-in user
+                const currentUser = window.auth.getCurrentUser();
+                if (currentUser && currentUser.id.toString() === currentProfileId) {
+                    Object.assign(currentUser, {
+                        firstName: updatedUser.firstName,
+                        lastName: updatedUser.lastName,
+                        schoolId: updatedUser.schoolId,
+                        schoolName: updatedUser.schoolName
+                    });
+                    window.auth.updateUIForLoggedInUser(currentUser);
+                }
+            }
         }
         
-        // Reload the profile view
+        // Reload the profile view with updated data
         await loadProfile(currentProfileId);
-        showPage('profile-view');
+        
+        // Show profile view
+        if (typeof window.showPage === 'function') {
+            window.showPage('profile-view');
+        } else {
+            // Fallback if main.js hasn't loaded
+            document.getElementById('profile-edit').style.display = 'none';
+            document.getElementById('profile-view').style.display = 'block';
+        }
         
         alert('Profile updated successfully!');
         
@@ -307,10 +432,19 @@ async function handleProfileUpdate(e) {
 document.getElementById('view-profile')?.addEventListener('click', (e) => {
     e.preventDefault();
     
-    const currentUser = window.auth.getCurrentUser();
+    const currentUser = window.auth?.getCurrentUser();
     if (currentUser) {
-        loadProfile(currentUser.id);
-        showPage('profile-view');
+        loadProfile(currentUser.id.toString());
+        if (typeof window.showPage === 'function') {
+            window.showPage('profile-view');
+        } else {
+            // Make profile visible if main.js hasn't loaded
+            const pages = document.querySelectorAll('.container > div[id$="-page"], .container > div[id$="-form"], .container > div[id="profile-edit"]');
+            pages.forEach(page => {
+                page.style.display = 'none';
+            });
+            document.getElementById('profile-view').style.display = 'block';
+        }
     }
 });
 
@@ -318,9 +452,9 @@ document.getElementById('view-profile')?.addEventListener('click', (e) => {
 document.getElementById('edit-profile')?.addEventListener('click', (e) => {
     e.preventDefault();
     
-    const currentUser = window.auth.getCurrentUser();
+    const currentUser = window.auth?.getCurrentUser();
     if (currentUser) {
-        currentProfileId = currentUser.id;
+        currentProfileId = currentUser.id.toString();
         loadProfileEditForm();
     }
 });

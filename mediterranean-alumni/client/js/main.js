@@ -1,10 +1,258 @@
 /**
  * Main Application Module for Mediterranean College Alumni Network
  * Handles page navigation, event listeners, and data loading
+ * DEMO VERSION: Using mock data instead of API calls
  */
 
 // Keep track of the current page
 let currentPage = 'home-page';
+
+// Mock Data for Schools
+const mockSchools = [
+    {
+        id: 1,
+        name: 'School of Business',
+        description: 'The School of Business offers degrees in Business Administration, Marketing, Finance, and Management.',
+        alumniCount: 145
+    },
+    {
+        id: 2,
+        name: 'School of Computing',
+        description: 'The School of Computing offers degrees in Computer Science, Software Engineering, Data Science, and Cybersecurity.',
+        alumniCount: 124
+    },
+    {
+        id: 3,
+        name: 'School of Engineering',
+        description: 'The School of Engineering offers degrees in Civil Engineering, Mechanical Engineering, Electrical Engineering, and Chemical Engineering.',
+        alumniCount: 98
+    },
+    {
+        id: 4,
+        name: 'School of Health Sciences',
+        description: 'The School of Health Sciences offers degrees in Nursing, Pharmacy, Physical Therapy, and Public Health.',
+        alumniCount: 112
+    },
+    {
+        id: 5,
+        name: 'School of Humanities',
+        description: 'The School of Humanities offers degrees in English, History, Philosophy, and Psychology.',
+        alumniCount: 86
+    }
+];
+
+// Mock Data for Alumni
+const mockAlumni = [
+    {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Smith',
+        email: 'john.smith@example.com',
+        schoolId: 2,
+        schoolName: 'School of Computing',
+        graduationYear: 2018,
+        degree: 'BSc in Computer Science',
+        currentPosition: 'Software Engineer',
+        company: 'Tech Innovations',
+        bio: 'Experienced software engineer with a passion for developing scalable applications. I have contributed to several open-source projects and enjoy mentoring junior developers.',
+        linkedinUrl: 'https://linkedin.com/in/johnsmith',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 2,
+        firstName: 'Maria',
+        lastName: 'Papadopoulos',
+        email: 'maria.p@example.com',
+        schoolId: 1,
+        schoolName: 'School of Business',
+        graduationYear: 2019,
+        degree: 'MBA in International Business',
+        currentPosition: 'Marketing Manager',
+        company: 'Global Marketing Solutions',
+        bio: 'Marketing professional with expertise in digital marketing strategies. I specialize in social media marketing and content creation for international brands.',
+        linkedinUrl: 'https://linkedin.com/in/maria-p',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 3,
+        firstName: 'Nikos',
+        lastName: 'Andreou',
+        email: 'nikos.a@example.com',
+        schoolId: 3,
+        schoolName: 'School of Engineering',
+        graduationYear: 2020,
+        degree: 'MSc in Civil Engineering',
+        currentPosition: 'Structural Engineer',
+        company: 'Athens Construction Group',
+        bio: 'Civil engineer specializing in structural design and analysis. I have worked on several major infrastructure projects across Greece and Europe.',
+        linkedinUrl: 'https://linkedin.com/in/nikos-andreou',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 4,
+        firstName: 'Elena',
+        lastName: 'Dimitriou',
+        email: 'elena.d@example.com',
+        schoolId: 4,
+        schoolName: 'School of Health Sciences',
+        graduationYear: 2021,
+        degree: 'BSc in Nursing',
+        currentPosition: 'Registered Nurse',
+        company: 'Athens General Hospital',
+        bio: 'Registered nurse with experience in emergency care. I am passionate about patient care and continuous professional development in healthcare.',
+        linkedinUrl: 'https://linkedin.com/in/elena-d',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 5,
+        firstName: 'Dimitris',
+        lastName: 'Georgiou',
+        email: 'dimitris.g@example.com',
+        schoolId: 5,
+        schoolName: 'School of Humanities',
+        graduationYear: 2017,
+        degree: 'BA in Psychology',
+        currentPosition: 'Clinical Psychologist',
+        company: 'Athens Mental Health Center',
+        bio: 'Clinical psychologist specializing in cognitive behavioral therapy. I work with clients of all ages and have a particular interest in anxiety disorders.',
+        linkedinUrl: 'https://linkedin.com/in/dimitris-g',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 6,
+        firstName: 'Sophia',
+        lastName: 'Karagianni',
+        email: 'sophia.k@example.com',
+        schoolId: 2,
+        schoolName: 'School of Computing',
+        graduationYear: 2022,
+        degree: 'MSc in Data Science',
+        currentPosition: 'Data Scientist',
+        company: 'Analytics Solutions',
+        bio: 'Data scientist with expertise in machine learning and statistical analysis. I enjoy solving complex problems using data-driven approaches.',
+        linkedinUrl: 'https://linkedin.com/in/sophia-k',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 7,
+        firstName: 'Andreas',
+        lastName: 'Panagiotou',
+        email: 'andreas.p@example.com',
+        schoolId: 1,
+        schoolName: 'School of Business',
+        graduationYear: 2018,
+        degree: 'BSc in Finance',
+        currentPosition: 'Financial Analyst',
+        company: 'National Bank of Greece',
+        bio: 'Financial analyst with experience in investment banking and asset management. I provide strategic financial advice to businesses and individuals.',
+        linkedinUrl: 'https://linkedin.com/in/andreas-p',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 8,
+        firstName: 'Christina',
+        lastName: 'Alexiou',
+        email: 'christina.a@example.com',
+        schoolId: 3,
+        schoolName: 'School of Engineering',
+        graduationYear: 2019,
+        degree: 'BSc in Electrical Engineering',
+        currentPosition: 'Electrical Engineer',
+        company: 'Power Systems Ltd',
+        bio: 'Electrical engineer specializing in power systems and renewable energy. I have worked on several sustainable energy projects across Greece.',
+        linkedinUrl: 'https://linkedin.com/in/christina-a',
+        profileImage: null,
+        isPublic: true
+    },
+    {
+        id: 9,
+        firstName: 'George',
+        lastName: 'Papadakis',
+        email: 'george.p@example.com',
+        schoolId: 4,
+        schoolName: 'School of Health Sciences',
+        graduationYear: 2020,
+        degree: 'PharmD in Pharmacy',
+        currentPosition: 'Pharmacist',
+        company: 'Central Pharmacy',
+        bio: 'Licensed pharmacist with experience in community and clinical pharmacy. I am committed to providing quality healthcare services and medication advice.',
+        linkedinUrl: 'https://linkedin.com/in/george-p',
+        profileImage: null,
+        isPublic: true
+    }
+];
+
+// Mock Data for Users
+const mockUsers = [
+    {
+        id: 101,
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@medcollege.edu',
+        role: 'admin',
+        schoolId: null,
+        graduationYear: null,
+        degree: null,
+        currentPosition: 'System Administrator',
+        company: 'Mediterranean College',
+        bio: 'Administrator account for the Mediterranean College Alumni Network.',
+        isPublic: false
+    },
+    ...mockAlumni
+];
+
+// Mock Data for Pending Applications
+const mockPendingApplications = [
+    {
+        id: 201,
+        firstName: 'Katerina',
+        lastName: 'Nikolaou',
+        email: 'katerina.n@example.com',
+        schoolId: 5,
+        schoolName: 'School of Humanities',
+        graduationYear: 2022,
+        degree: 'BA in English Literature',
+        currentPosition: 'Content Writer',
+        company: 'Digital Media Agency',
+        bio: 'Recent graduate with a passion for literature and creative writing. Looking to connect with fellow alumni and explore career opportunities.',
+        isPublic: true
+    },
+    {
+        id: 202,
+        firstName: 'Kostas',
+        lastName: 'Vlachos',
+        email: 'kostas.v@example.com',
+        schoolId: 2,
+        schoolName: 'School of Computing',
+        graduationYear: 2023,
+        degree: 'BSc in Cybersecurity',
+        currentPosition: 'Security Analyst',
+        company: 'Secure Systems',
+        bio: 'Cybersecurity professional with a focus on network security and penetration testing. Eager to connect with alumni in the tech industry.',
+        isPublic: true
+    },
+    {
+        id: 203,
+        firstName: 'Eleni',
+        lastName: 'Papanikolaou',
+        email: 'eleni.p@example.com',
+        schoolId: 1,
+        schoolName: 'School of Business',
+        graduationYear: 2021,
+        degree: 'BSc in Marketing',
+        currentPosition: 'Digital Marketing Specialist',
+        company: 'Creative Marketing',
+        bio: 'Marketing specialist with expertise in SEO and content marketing. Looking to network with fellow Mediterranean College alumni.',
+        isPublic: true
+    }
+];
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -153,66 +401,53 @@ function updateActiveNavLink(pageId) {
 
 /**
  * Loads the schools data and populates the schools page
+ * DEMO: Uses mock data instead of fetch
  */
-async function loadSchools() {
-    try {
-        const response = await fetch('/api/schools');
-        const schools = await response.json();
-        
-        const schoolsContainer = document.getElementById('schools-container');
-        schoolsContainer.innerHTML = '';
-        
-        schools.forEach(school => {
-            const schoolCard = document.createElement('div');
-            schoolCard.className = 'col';
-            schoolCard.innerHTML = `
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">${school.name}</h5>
-                        <p class="card-text">${school.description || 'No description available.'}</p>
-                        <p class="text-muted">Alumni: ${school.alumniCount || 0}</p>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-outline-primary view-school-alumni" data-school-id="${school.id}">View Alumni</button>
-                    </div>
+function loadSchools() {
+    // Using mockSchools data instead of fetch
+    const schools = mockSchools;
+    
+    const schoolsContainer = document.getElementById('schools-container');
+    schoolsContainer.innerHTML = '';
+    
+    schools.forEach(school => {
+        const schoolCard = document.createElement('div');
+        schoolCard.className = 'col';
+        schoolCard.innerHTML = `
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${school.name}</h5>
+                    <p class="card-text">${school.description || 'No description available.'}</p>
+                    <p class="text-muted">Alumni: ${school.alumniCount || 0}</p>
                 </div>
-            `;
-            
-            schoolsContainer.appendChild(schoolCard);
-        });
+                <div class="card-footer">
+                    <button class="btn btn-outline-primary view-school-alumni" data-school-id="${school.id}">View Alumni</button>
+                </div>
+            </div>
+        `;
         
-        // Add event listeners to view alumni buttons
-        document.querySelectorAll('.view-school-alumni').forEach(button => {
-            button.addEventListener('click', () => {
-                const schoolId = button.getAttribute('data-school-id');
-                document.getElementById('filter-school').value = schoolId;
-                filterAlumni();
-                showPage('alumni-page');
-            });
+        schoolsContainer.appendChild(schoolCard);
+    });
+    
+    // Add event listeners to view alumni buttons
+    document.querySelectorAll('.view-school-alumni').forEach(button => {
+        button.addEventListener('click', () => {
+            const schoolId = button.getAttribute('data-school-id');
+            document.getElementById('filter-school').value = schoolId;
+            filterAlumni();
+            showPage('alumni-page');
         });
-        
-    } catch (error) {
-        console.error('Error loading schools:', error);
-        const schoolsContainer = document.getElementById('schools-container');
-        schoolsContainer.innerHTML = '<div class="alert alert-danger">Failed to load schools data. Please try again later.</div>';
-    }
+    });
 }
 
 /**
  * Loads the alumni directory data
+ * DEMO: Uses mock data instead of fetch
  */
-async function loadAlumniDirectory() {
-    try {
-        const response = await fetch('/api/users/alumni');
-        const alumni = await response.json();
-        
-        displayAlumni(alumni);
-        
-    } catch (error) {
-        console.error('Error loading alumni directory:', error);
-        const alumniContainer = document.getElementById('alumni-container');
-        alumniContainer.innerHTML = '<div class="alert alert-danger">Failed to load alumni data. Please try again later.</div>';
-    }
+function loadAlumniDirectory() {
+    // Using mockAlumni data instead of fetch
+    const alumni = mockAlumni;
+    displayAlumni(alumni);
 }
 
 /**
@@ -292,36 +527,37 @@ function debounce(func, wait) {
 
 /**
  * Filters alumni based on selected criteria
+ * DEMO: Filters mock data locally instead of making API calls
  */
-async function filterAlumni() {
-    const schoolId = document.getElementById('filter-school').value;
-    const graduationYear = document.getElementById('filter-year').value;
-    const searchQuery = document.getElementById('search-alumni').value.trim();
+function filterAlumni() {
+    const schoolId = parseInt(document.getElementById('filter-school').value);
+    const graduationYear = parseInt(document.getElementById('filter-year').value);
+    const searchQuery = document.getElementById('search-alumni').value.trim().toLowerCase();
     
-    let url = '/api/users/alumni?';
+    // Filter the mockAlumni data locally
+    let filteredAlumni = mockAlumni;
     
-    if (schoolId && schoolId !== '0') {
-        url += `schoolId=${schoolId}&`;
+    // Filter by school
+    if (schoolId && schoolId !== 0) {
+        filteredAlumni = filteredAlumni.filter(alumnus => alumnus.schoolId === schoolId);
     }
     
-    if (graduationYear && graduationYear !== '0') {
-        url += `graduationYear=${graduationYear}&`;
+    // Filter by graduation year
+    if (graduationYear && graduationYear !== 0) {
+        filteredAlumni = filteredAlumni.filter(alumnus => alumnus.graduationYear === graduationYear);
     }
     
+    // Filter by search query (name or company)
     if (searchQuery) {
-        url += `search=${encodeURIComponent(searchQuery)}&`;
+        filteredAlumni = filteredAlumni.filter(alumnus => {
+            const fullName = `${alumnus.firstName} ${alumnus.lastName}`.toLowerCase();
+            const company = (alumnus.company || '').toLowerCase();
+            return fullName.includes(searchQuery) || company.includes(searchQuery);
+        });
     }
     
-    try {
-        const response = await fetch(url);
-        const alumni = await response.json();
-        
-        displayAlumni(alumni);
-        
-    } catch (error) {
-        console.error('Error filtering alumni:', error);
-        alert('Failed to filter alumni. Please try again later.');
-    }
+    // Display the filtered alumni
+    displayAlumni(filteredAlumni);
 }
 
 /**
@@ -335,9 +571,9 @@ function initGraduationYearFilter() {
     yearSelect.innerHTML = '';
     yearSelect.appendChild(allYearsOption);
     
-    // Add graduation years from current year to 30 years ago
+    // Add graduation years from current year to 10 years ago
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= currentYear - 30; year--) {
+    for (let year = currentYear; year >= currentYear - 10; year--) {
         const option = document.createElement('option');
         option.value = year;
         option.textContent = year;
@@ -361,59 +597,21 @@ function setupAdminFunctions() {
 
 /**
  * Loads data for the admin dashboard
+ * DEMO: Uses mock data instead of fetch
  */
-async function loadAdminData() {
+function loadAdminData() {
     if (!window.auth || !window.auth.isAuthenticated() || !window.auth.getCurrentUser() || window.auth.getCurrentUser().role !== 'admin') {
         return;
     }
     
-    try {
-        // Load pending applications
-        const pendingResponse = await fetch('/api/admin/pending-applications', {
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
-        
-        if (!pendingResponse.ok) {
-            throw new Error('Failed to load pending applications');
-        }
-        
-        const pendingApplications = await pendingResponse.json();
-        displayPendingApplications(pendingApplications);
-        
-        // Load all users
-        const usersResponse = await fetch('/api/admin/users', {
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
-        
-        if (!usersResponse.ok) {
-            throw new Error('Failed to load users');
-        }
-        
-        const users = await usersResponse.json();
-        displayAllUsers(users);
-        
-        // Load schools for admin
-        const schoolsResponse = await fetch('/api/admin/schools', {
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
-        
-        if (!schoolsResponse.ok) {
-            throw new Error('Failed to load schools');
-        }
-        
-        const schools = await schoolsResponse.json();
-        displaySchoolsAdmin(schools);
-        
-    } catch (error) {
-        console.error('Error loading admin data:', error);
-        alert('Failed to load admin data. Please try again later.');
-    }
+    // Display pending applications
+    displayPendingApplications(mockPendingApplications);
+    
+    // Display all users
+    displayAllUsers(mockUsers);
+    
+    // Display schools for admin
+    displaySchoolsAdmin(mockSchools);
 }
 
 /**
@@ -463,29 +661,30 @@ function displayPendingApplications(applications) {
 
 /**
  * Handles approval or rejection of an application
+ * DEMO: Simulates API call with local data modification
  * @param {string} id - The application ID
  * @param {string} action - The action to take ('approve' or 'reject')
  */
 async function handleApplicationAction(id, action) {
-    try {
-        const response = await fetch(`/api/admin/applications/${id}/${action}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
+    // Remove the application from pending list (in a real app, this would be an API call)
+    const appIndex = mockPendingApplications.findIndex(app => app.id.toString() === id);
+    if (appIndex !== -1) {
+        mockPendingApplications.splice(appIndex, 1);
         
-        if (!response.ok) {
-            throw new Error(`Failed to ${action} application`);
+        // If approved, add to users list
+        if (action === 'approve') {
+            const approvedApp = mockPendingApplications.find(app => app.id.toString() === id) || {};
+            mockUsers.push({
+                ...approvedApp,
+                role: 'user'
+            });
         }
         
         // Reload admin data
         loadAdminData();
         
         alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
-        
-    } catch (error) {
-        console.error(`Error ${action}ing application:`, error);
+    } else {
         alert(`Failed to ${action} application. Please try again later.`);
     }
 }
@@ -549,28 +748,20 @@ function displayAllUsers(users) {
 
 /**
  * Handles deletion of a user
+ * DEMO: Simulates API call with local data modification
  * @param {string} id - The user ID
  */
 async function handleDeleteUser(id) {
-    try {
-        const response = await fetch(`/api/admin/users/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to delete user');
-        }
+    // Remove the user from users list (in a real app, this would be an API call)
+    const userIndex = mockUsers.findIndex(user => user.id.toString() === id);
+    if (userIndex !== -1) {
+        mockUsers.splice(userIndex, 1);
         
         // Reload admin data
         loadAdminData();
         
         alert('User deleted successfully.');
-        
-    } catch (error) {
-        console.error('Error deleting user:', error);
+    } else {
         alert('Failed to delete user. Please try again later.');
     }
 }
@@ -624,20 +815,14 @@ function displaySchoolsAdmin(schools) {
 
 /**
  * Handles deletion of a school
+ * DEMO: Simulates API call with local data modification
  * @param {string} id - The school ID
  */
 async function handleDeleteSchool(id) {
-    try {
-        const response = await fetch(`/api/admin/schools/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${window.auth.getAuthToken()}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to delete school');
-        }
+    // Remove the school from schools list (in a real app, this would be an API call)
+    const schoolIndex = mockSchools.findIndex(school => school.id.toString() === id);
+    if (schoolIndex !== -1) {
+        mockSchools.splice(schoolIndex, 1);
         
         // Reload admin data
         loadAdminData();
@@ -646,9 +831,15 @@ async function handleDeleteSchool(id) {
         loadSchools();
         
         alert('School deleted successfully.');
-        
-    } catch (error) {
-        console.error('Error deleting school:', error);
+    } else {
         alert('Failed to delete school. Please try again later.');
     }
 }
+
+// Make mock data available for other modules
+window.mockData = {
+    schools: mockSchools,
+    alumni: mockAlumni,
+    users: mockUsers,
+    pendingApplications: mockPendingApplications
+};
