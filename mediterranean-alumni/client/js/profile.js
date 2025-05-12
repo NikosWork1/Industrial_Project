@@ -130,16 +130,26 @@ function displayProfile(user) {
  * DEMO: Uses mock data instead of API call
  */
 async function loadProfileEditForm() {
-    if (!currentProfileId) return;
+    console.log('loadProfileEditForm called, currentProfileId:', currentProfileId);
+    
+    if (!currentProfileId) {
+        console.error('No currentProfileId available. Cannot load edit form.');
+        return;
+    }
     
     try {
         // In a real app, this would be a fetch request
         // For demo, we'll look for the user in our mock data
         let user;
         
+        console.log('Attempting to find user data for ID:', currentProfileId);
+        
         // Try to find user in mock data
         if (window.mockData) {
+            console.log('mockData found in window object');
+            
             if (currentProfileId === '101') {
+                console.log('Admin user detected');
                 user = {
                     id: 101,
                     firstName: 'Admin',
@@ -157,13 +167,23 @@ async function loadProfileEditForm() {
                 };
             } else {
                 // Look in alumni/users arrays
-                user = window.mockData.alumni.find(a => a.id.toString() === currentProfileId) || 
-                       window.mockData.users.find(u => u.id.toString() === currentProfileId);
+                console.log('Searching for user in mockData.alumni and mockData.users arrays');
+                
+                const alumniUser = window.mockData.alumni.find(a => a.id.toString() === currentProfileId);
+                const regularUser = window.mockData.users.find(u => u.id.toString() === currentProfileId);
+                
+                user = alumniUser || regularUser;
+                
+                console.log('User found in alumni array:', !!alumniUser);
+                console.log('User found in users array:', !!regularUser);
             }
+        } else {
+            console.warn('mockData not found in window object');
         }
         
         // If user not found, use a default one for demo
         if (!user) {
+            console.warn('User not found, using default user data');
             user = {
                 id: parseInt(currentProfileId),
                 firstName: 'John',
@@ -180,32 +200,62 @@ async function loadProfileEditForm() {
                 profileImage: null,
                 isPublic: true
             };
+        } else {
+            console.log('User data found:', {
+                id: user.id,
+                name: `${user.firstName} ${user.lastName}`,
+                email: user.email
+            });
         }
         
         // Create the edit form if it doesn't exist yet
         const profileEditContainer = document.getElementById('profile-edit');
-        if (!profileEditContainer.querySelector('form')) {
+        
+        if (!profileEditContainer) {
+            console.error('profile-edit container not found in the DOM');
+            return;
+        }
+        
+        console.log('profile-edit container found');
+        
+        const hasForm = !!profileEditContainer.querySelector('form');
+        console.log('Form already exists in container:', hasForm);
+        
+        if (!hasForm) {
+            console.log('Creating new profile edit form');
             const formHTML = createProfileEditForm();
             profileEditContainer.innerHTML = formHTML;
             
             // Add event listener to form
-            document.getElementById('profile-edit-form').addEventListener('submit', handleProfileUpdate);
+            const editForm = document.getElementById('profile-edit-form');
+            if (editForm) {
+                console.log('Adding submit event listener to form');
+                editForm.addEventListener('submit', handleProfileUpdate);
+            } else {
+                console.error('profile-edit-form not found after adding HTML');
+            }
         }
         
         // Fill form with user data
-        populateProfileEditForm(user);
+        console.log('Populating form with user data');
+        await populateProfileEditForm(user);
+        console.log('Form populated successfully');
         
         // Show the edit form
         if (typeof window.showPage === 'function') {
+            console.log('Using window.showPage to display profile-edit');
             window.showPage('profile-edit');
         } else {
+            console.warn('window.showPage not available, using fallback display method');
             // Fallback if main.js hasn't loaded
-            document.getElementById('profile-view').style.display = 'none';
-            document.getElementById('profile-edit').style.display = 'block';
+            const profileView = document.getElementById('profile-view');
+            if (profileView) profileView.style.display = 'none';
+            profileEditContainer.style.display = 'block';
         }
         
     } catch (error) {
         console.error('Error loading profile data for editing:', error);
+        console.error('Stack trace:', error.stack);
         alert('Could not load profile data. Please try again later.');
     }
 }
@@ -300,47 +350,105 @@ function createProfileEditForm() {
  * @param {Object} user - The user data to populate the form with
  */
 async function populateProfileEditForm(user) {
-    document.getElementById('edit-first-name').value = user.firstName || '';
-    document.getElementById('edit-last-name').value = user.lastName || '';
-    document.getElementById('edit-email').value = user.email || '';
-    document.getElementById('edit-graduation-year').value = user.graduationYear || '';
-    document.getElementById('edit-degree').value = user.degree || '';
-    document.getElementById('edit-current-position').value = user.currentPosition || '';
-    document.getElementById('edit-company').value = user.company || '';
-    document.getElementById('edit-bio').value = user.bio || '';
-    document.getElementById('edit-linkedin').value = user.linkedinUrl || '';
-    document.getElementById('edit-public-profile').checked = user.isPublic || false;
+    console.log('populateProfileEditForm called with user:', user ? user.id : 'no user');
     
-    // Load schools dropdown using mock data
-    const schools = window.mockData?.schools || [
-        { id: 1, name: 'School of Business' },
-        { id: 2, name: 'School of Computing' },
-        { id: 3, name: 'School of Engineering' },
-        { id: 4, name: 'School of Health Sciences' },
-        { id: 5, name: 'School of Humanities' }
-    ];
+    if (!user) {
+        console.error('No user data provided to populateProfileEditForm');
+        return;
+    }
     
-    const schoolSelect = document.getElementById('edit-school');
-    schoolSelect.innerHTML = '<option value="" disabled>Select your school</option>';
-    
-    schools.forEach(school => {
-        const option = document.createElement('option');
-        option.value = school.id;
-        option.textContent = school.name;
-        option.selected = school.id == user.schoolId;
-        schoolSelect.appendChild(option);
-    });
-    
-    // Add event listener to cancel button
-    document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-        if (typeof window.showPage === 'function') {
-            window.showPage('profile-view');
-        } else {
-            // Fallback if main.js hasn't loaded
-            document.getElementById('profile-edit').style.display = 'none';
-            document.getElementById('profile-view').style.display = 'block';
+    try {
+        // Helper function to safely set form values
+        const setFormValue = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = !!value;
+                } else {
+                    element.value = value || '';
+                }
+                console.log(`Set ${id} to:`, element.type === 'checkbox' ? !!value : (value || ''));
+            } else {
+                console.error(`Element not found: ${id}`);
+            }
+        };
+        
+        // Set form field values
+        setFormValue('edit-first-name', user.firstName);
+        setFormValue('edit-last-name', user.lastName);
+        setFormValue('edit-email', user.email);
+        setFormValue('edit-graduation-year', user.graduationYear);
+        setFormValue('edit-degree', user.degree);
+        setFormValue('edit-current-position', user.currentPosition);
+        setFormValue('edit-company', user.company);
+        setFormValue('edit-bio', user.bio);
+        setFormValue('edit-linkedin', user.linkedinUrl);
+        setFormValue('edit-public-profile', user.isPublic);
+        
+        // Load schools dropdown using mock data
+        console.log('Loading schools dropdown');
+        const schools = window.mockData?.schools || [
+            { id: 1, name: 'School of Business' },
+            { id: 2, name: 'School of Computing' },
+            { id: 3, name: 'School of Engineering' },
+            { id: 4, name: 'School of Health Sciences' },
+            { id: 5, name: 'School of Humanities' }
+        ];
+        
+        const schoolSelect = document.getElementById('edit-school');
+        if (!schoolSelect) {
+            console.error('School select element not found!');
+            return;
         }
-    });
+        
+        console.log('Populating schools dropdown with', schools.length, 'schools');
+        schoolSelect.innerHTML = '<option value="" disabled>Select your school</option>';
+        
+        schools.forEach(school => {
+            const option = document.createElement('option');
+            option.value = school.id;
+            option.textContent = school.name;
+            option.selected = school.id == user.schoolId;
+            schoolSelect.appendChild(option);
+            
+            if (school.id == user.schoolId) {
+                console.log(`Selected school: ${school.name} (ID: ${school.id})`);
+            }
+        });
+        
+        // Add event listener to cancel button (using event delegation to avoid duplicates)
+        const cancelBtn = document.getElementById('cancel-edit-btn');
+        if (cancelBtn) {
+            console.log('Setting up cancel button event listener');
+            
+            // Remove existing listeners to prevent duplicates
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            
+            newCancelBtn.addEventListener('click', () => {
+                console.log('Cancel button clicked');
+                if (typeof window.showPage === 'function') {
+                    console.log('Using window.showPage to return to profile-view');
+                    window.showPage('profile-view');
+                } else {
+                    console.warn('window.showPage not available, using fallback display method');
+                    // Fallback if main.js hasn't loaded
+                    const profileEdit = document.getElementById('profile-edit');
+                    const profileView = document.getElementById('profile-view');
+                    
+                    if (profileEdit) profileEdit.style.display = 'none';
+                    if (profileView) profileView.style.display = 'block';
+                }
+            });
+        } else {
+            console.error('Cancel button element not found!');
+        }
+        
+        console.log('Form populated successfully');
+    } catch (error) {
+        console.error('Error populating profile form:', error);
+        console.error('Stack trace:', error.stack);
+    }
 }
 
 /**

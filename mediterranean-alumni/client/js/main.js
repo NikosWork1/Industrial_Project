@@ -332,6 +332,15 @@ function setupNavigation() {
         // For now, just show an alert
         alert('Events feature coming soon!');
     });
+    
+    // Server test button
+    document.getElementById('test-server-btn')?.addEventListener('click', () => {
+        if (window.serverTest && window.serverTest.run) {
+            window.serverTest.run('server-test-container');
+        } else {
+            alert('Server test module not loaded. Please check the console for errors.');
+        }
+    });
 }
 
 /**
@@ -339,22 +348,29 @@ function setupNavigation() {
  * @param {string} pageId - The ID of the page to show
  */
 function showPage(pageId) {
+    console.log(`showPage called with pageId: ${pageId}`);
+    
     // Get all pages
     const pages = document.querySelectorAll('.container > div[id$="-page"], .container > div[id$="-form"], .container > div[id="profile-view"], .container > div[id="profile-edit"]');
+    console.log(`Found ${pages.length} pages to manage`);
     
     // Hide all pages
     pages.forEach(page => {
         page.style.display = 'none';
+        console.log(`Hidden page: ${page.id}`);
     });
     
     // Show the requested page
     const pageToShow = document.getElementById(pageId);
     if (pageToShow) {
+        console.log(`Showing page: ${pageId}`);
         pageToShow.style.display = 'block';
         currentPage = pageId;
         
         // Update active nav link
         updateActiveNavLink(pageId);
+    } else {
+        console.error(`Page not found: ${pageId}`);
     }
 }
 
@@ -363,9 +379,16 @@ function showPage(pageId) {
  * @param {string} pageId - The ID of the current page
  */
 function updateActiveNavLink(pageId) {
+    console.log(`updateActiveNavLink called with pageId: ${pageId}`);
+    
     // Remove active class from all nav links
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    console.log(`Found ${navLinks.length} nav links`);
+    
     navLinks.forEach(link => {
+        if (link.classList.contains('active')) {
+            console.log(`Removing active class from: ${link.id || 'unnamed link'}`);
+        }
         link.classList.remove('active');
     });
     
@@ -387,15 +410,18 @@ function updateActiveNavLink(pageId) {
             break;
         case 'profile-view':
         case 'profile-edit':
-            // Don't highlight any nav link for profile pages
+            console.log('Profile page - not highlighting any nav link');
             return;
         default:
-            // Don't highlight any nav link for forms
+            console.log('Form or other page - not highlighting any nav link');
             return;
     }
     
     if (activeLink) {
+        console.log(`Setting active class on: ${activeLink.id || 'unnamed link'}`);
         activeLink.classList.add('active');
+    } else {
+        console.warn(`No active link found for page: ${pageId}`);
     }
 }
 
@@ -530,30 +556,73 @@ function debounce(func, wait) {
  * DEMO: Filters mock data locally instead of making API calls
  */
 function filterAlumni() {
-    const schoolId = parseInt(document.getElementById('filter-school').value);
-    const graduationYear = parseInt(document.getElementById('filter-year').value);
-    const searchQuery = document.getElementById('search-alumni').value.trim().toLowerCase();
+    console.log('filterAlumni function called');
     
-    // Filter the mockAlumni data locally
-    let filteredAlumni = mockAlumni;
+    // Get filter values - safely handle potential missing elements
+    const filterSchoolEl = document.getElementById('filter-school');
+    const filterYearEl = document.getElementById('filter-year');
+    const searchAlumniEl = document.getElementById('search-alumni');
+    
+    if (!filterSchoolEl || !filterYearEl || !searchAlumniEl) {
+        console.error('Filter elements not found:', {
+            'filter-school': !!filterSchoolEl,
+            'filter-year': !!filterYearEl,
+            'search-alumni': !!searchAlumniEl
+        });
+        return;
+    }
+    
+    // Parse filter values
+    const schoolId = parseInt(filterSchoolEl.value) || 0;
+    const graduationYear = parseInt(filterYearEl.value) || 0;
+    const searchQuery = searchAlumniEl.value.trim().toLowerCase();
+    
+    console.log('Filter criteria:', { schoolId, graduationYear, searchQuery });
+    console.log('Initial alumni count:', mockAlumni.length);
+    
+    // Start with a copy of the mockAlumni data to avoid modifying the original
+    let filteredAlumni = [...mockAlumni];
     
     // Filter by school
-    if (schoolId && schoolId !== 0) {
+    if (schoolId !== 0) {
+        console.log(`Filtering by school ID: ${schoolId}`);
+        const beforeCount = filteredAlumni.length;
         filteredAlumni = filteredAlumni.filter(alumnus => alumnus.schoolId === schoolId);
+        console.log(`After school filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
     }
     
     // Filter by graduation year
-    if (graduationYear && graduationYear !== 0) {
+    if (graduationYear !== 0) {
+        console.log(`Filtering by graduation year: ${graduationYear}`);
+        const beforeCount = filteredAlumni.length;
         filteredAlumni = filteredAlumni.filter(alumnus => alumnus.graduationYear === graduationYear);
+        console.log(`After year filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
     }
     
     // Filter by search query (name or company)
     if (searchQuery) {
+        console.log(`Filtering by search query: "${searchQuery}"`);
+        const beforeCount = filteredAlumni.length;
         filteredAlumni = filteredAlumni.filter(alumnus => {
             const fullName = `${alumnus.firstName} ${alumnus.lastName}`.toLowerCase();
             const company = (alumnus.company || '').toLowerCase();
-            return fullName.includes(searchQuery) || company.includes(searchQuery);
+            const position = (alumnus.currentPosition || '').toLowerCase();
+            const degree = (alumnus.degree || '').toLowerCase();
+            
+            // Extended search to include position and degree
+            return fullName.includes(searchQuery) || 
+                   company.includes(searchQuery) || 
+                   position.includes(searchQuery) ||
+                   degree.includes(searchQuery);
         });
+        console.log(`After search filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
+    }
+    
+    console.log('Final filtered alumni count:', filteredAlumni.length);
+    if (filteredAlumni.length === 0) {
+        console.log('No alumni matched the filter criteria');
+    } else {
+        console.log('First match:', filteredAlumni[0].firstName, filteredAlumni[0].lastName);
     }
     
     // Display the filtered alumni
@@ -600,18 +669,76 @@ function setupAdminFunctions() {
  * DEMO: Uses mock data instead of fetch
  */
 function loadAdminData() {
-    if (!window.auth || !window.auth.isAuthenticated() || !window.auth.getCurrentUser() || window.auth.getCurrentUser().role !== 'admin') {
+    console.log('loadAdminData called');
+    
+    // Check authentication and admin role
+    if (!window.auth) {
+        console.error('Error: auth module not available');
         return;
     }
     
-    // Display pending applications
-    displayPendingApplications(mockPendingApplications);
+    if (!window.auth.isAuthenticated()) {
+        console.warn('User is not authenticated');
+        return;
+    }
     
-    // Display all users
-    displayAllUsers(mockUsers);
+    const currentUser = window.auth.getCurrentUser();
+    if (!currentUser) {
+        console.error('Error: Current user data not available');
+        return;
+    }
     
-    // Display schools for admin
-    displaySchoolsAdmin(mockSchools);
+    if (currentUser.role !== 'admin') {
+        console.warn('User is not an admin:', currentUser.role);
+        return;
+    }
+    
+    console.log('Admin authentication verified');
+    
+    try {
+        // Check if mock data is available
+        if (!mockPendingApplications) {
+            console.error('Error: mockPendingApplications is not defined');
+        } else {
+            console.log(`Loading ${mockPendingApplications.length} pending applications`);
+            // Display pending applications - pass a copy to avoid modification issues
+            displayPendingApplications([...mockPendingApplications]);
+        }
+        
+        if (!mockUsers) {
+            console.error('Error: mockUsers is not defined');
+        } else {
+            console.log(`Loading ${mockUsers.length} users`);
+            // Display all users
+            displayAllUsers(mockUsers);
+        }
+        
+        if (!mockSchools) {
+            console.error('Error: mockSchools is not defined');
+        } else {
+            console.log(`Loading ${mockSchools.length} schools`);
+            // Display schools for admin
+            displaySchoolsAdmin(mockSchools);
+        }
+        
+        console.log('Admin dashboard data loaded successfully');
+    } catch (error) {
+        console.error('Error loading admin data:', error);
+        console.error('Stack trace:', error.stack);
+        
+        // Try to show error message on the admin page
+        try {
+            const adminContainer = document.getElementById('admin-page');
+            if (adminContainer) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = 'Error loading admin dashboard data. Please try refreshing the page.';
+                adminContainer.prepend(errorDiv);
+            }
+        } catch (e) {
+            console.error('Error displaying error message:', e);
+        }
+    }
 }
 
 /**
@@ -619,19 +746,49 @@ function loadAdminData() {
  * @param {Array} applications - The pending applications data
  */
 function displayPendingApplications(applications) {
-    const tbody = document.getElementById('pending-applications');
-    tbody.innerHTML = '';
+    console.log('displayPendingApplications called with:', applications);
     
+    // Safely get the tbody element
+    const tbody = document.getElementById('pending-applications');
+    if (!tbody) {
+        console.error('Error: pending-applications element not found in the DOM');
+        return;
+    }
+    
+    console.log('Found tbody element for pending applications');
+    
+    // Check if applications is valid array
+    if (!Array.isArray(applications)) {
+        console.error('Error: applications is not an array:', applications);
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Error loading applications data</td></tr>';
+        return;
+    }
+    
+    // Clear the table
+    tbody.innerHTML = '';
+    console.log(`Cleared table, will add ${applications.length} applications`);
+    
+    // Handle empty applications list
     if (applications.length === 0) {
+        console.log('No pending applications to display');
         tbody.innerHTML = '<tr><td colspan="5" class="text-center">No pending applications</td></tr>';
         return;
     }
     
-    applications.forEach(app => {
+    // Add each application to the table
+    applications.forEach((app, index) => {
+        console.log(`Processing application ${index + 1}:`, app.id, app.firstName, app.lastName);
+        
+        // Validate application object has required fields
+        if (!app || !app.id) {
+            console.warn(`Application ${index} is invalid or missing ID`, app);
+            return; // Skip this application
+        }
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${app.firstName} ${app.lastName}</td>
-            <td>${app.email}</td>
+            <td>${app.firstName || ''} ${app.lastName || ''}</td>
+            <td>${app.email || 'No email'}</td>
             <td>${app.schoolName || 'Not specified'}</td>
             <td>${app.graduationYear || 'Not specified'}</td>
             <td>
@@ -641,22 +798,44 @@ function displayPendingApplications(applications) {
         `;
         
         tbody.appendChild(tr);
+        console.log(`Added application ${app.id} to table`);
     });
     
-    // Add event listeners to buttons
-    document.querySelectorAll('.approve-application').forEach(button => {
-        button.addEventListener('click', async () => {
-            const id = button.getAttribute('data-id');
+    console.log('Setting up event listeners for approval/rejection buttons');
+    
+    // Remove any existing event listeners (to prevent duplicates)
+    const approveButtons = document.querySelectorAll('.approve-application');
+    const rejectButtons = document.querySelectorAll('.reject-application');
+    
+    console.log(`Found ${approveButtons.length} approve buttons and ${rejectButtons.length} reject buttons`);
+    
+    // Add event listeners to approve buttons
+    approveButtons.forEach(button => {
+        // Clone and replace to remove existing listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', async () => {
+            const id = newButton.getAttribute('data-id');
+            console.log(`Approve button clicked for application ID: ${id}`);
             await handleApplicationAction(id, 'approve');
         });
     });
     
-    document.querySelectorAll('.reject-application').forEach(button => {
-        button.addEventListener('click', async () => {
-            const id = button.getAttribute('data-id');
+    // Add event listeners to reject buttons
+    rejectButtons.forEach(button => {
+        // Clone and replace to remove existing listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', async () => {
+            const id = newButton.getAttribute('data-id');
+            console.log(`Reject button clicked for application ID: ${id}`);
             await handleApplicationAction(id, 'reject');
         });
     });
+    
+    console.log('Finished setting up pending applications table');
 }
 
 /**
@@ -666,26 +845,74 @@ function displayPendingApplications(applications) {
  * @param {string} action - The action to take ('approve' or 'reject')
  */
 async function handleApplicationAction(id, action) {
-    // Remove the application from pending list (in a real app, this would be an API call)
-    const appIndex = mockPendingApplications.findIndex(app => app.id.toString() === id);
-    if (appIndex !== -1) {
-        mockPendingApplications.splice(appIndex, 1);
+    console.log(`handleApplicationAction called with id: ${id}, action: ${action}`);
+    
+    if (!id) {
+        console.error('Error: No application ID provided');
+        alert('Error: Application ID is missing');
+        return;
+    }
+    
+    if (action !== 'approve' && action !== 'reject') {
+        console.error('Error: Invalid action:', action);
+        alert('Error: Invalid action');
+        return;
+    }
+    
+    try {
+        console.log('Searching for application in mockPendingApplications array');
+        console.log('Current pending applications:', mockPendingApplications.length);
         
-        // If approved, add to users list
-        if (action === 'approve') {
-            const approvedApp = mockPendingApplications.find(app => app.id.toString() === id) || {};
-            mockUsers.push({
-                ...approvedApp,
-                role: 'user'
-            });
+        // Find application to process
+        const appIndex = mockPendingApplications.findIndex(app => app.id.toString() === id);
+        console.log(`Application index in array: ${appIndex}`);
+        
+        if (appIndex !== -1) {
+            // Store the application data before removing it
+            const applicationData = {...mockPendingApplications[appIndex]};
+            console.log('Found application:', applicationData);
+            
+            // Remove from pending list
+            mockPendingApplications.splice(appIndex, 1);
+            console.log('Removed application from pending list');
+            
+            // If approved, add to users list
+            if (action === 'approve') {
+                console.log('Approving application - adding to users list');
+                
+                const newUser = {
+                    ...applicationData,
+                    role: 'user'
+                };
+                
+                mockUsers.push(newUser);
+                console.log('Added to users list:', newUser);
+                
+                // Also add to alumni list if not already there
+                const existingAlumniIndex = mockAlumni.findIndex(a => a.id === applicationData.id);
+                if (existingAlumniIndex === -1) {
+                    console.log('Adding to alumni list');
+                    mockAlumni.push(newUser);
+                }
+            } else {
+                console.log('Rejecting application - not adding to users list');
+            }
+            
+            // Reload admin data
+            console.log('Reloading admin data');
+            loadAdminData();
+            
+            console.log(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
+            alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
+        } else {
+            console.error(`Application with ID ${id} not found in pending applications`);
+            console.log('Current pending applications:', mockPendingApplications);
+            alert(`Failed to ${action} application. Application not found.`);
         }
-        
-        // Reload admin data
-        loadAdminData();
-        
-        alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
-    } else {
-        alert(`Failed to ${action} application. Please try again later.`);
+    } catch (error) {
+        console.error('Error handling application action:', error);
+        console.error('Stack trace:', error.stack);
+        alert(`Failed to ${action} application. An error occurred.`);
     }
 }
 
@@ -843,3 +1070,77 @@ window.mockData = {
     users: mockUsers,
     pendingApplications: mockPendingApplications
 };
+
+/**
+ * Test server connectivity to the /api/schools endpoint
+ * Run this function from the browser console to check if the server is accessible
+ * @param {string} [baseUrl='http://localhost:3000'] - The base URL of the server
+ * @returns {Promise<Object>} - A promise that resolves with school data or rejects with an error
+ */
+async function testServerConnection(baseUrl = 'http://localhost:3000') {
+    console.log(`Testing server connection to ${baseUrl}/api/schools...`);
+    
+    try {
+        // Start timer
+        const startTime = performance.now();
+        
+        // Fetch schools from the server
+        const response = await fetch(`${baseUrl}/api/schools`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        // End timer
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status} ${response.statusText}`);
+        }
+        
+        // Parse the response
+        const data = await response.json();
+        
+        // Log success
+        console.log(`✅ Server connection successful! Response time: ${responseTime}ms`);
+        console.log(`Received data for ${data.length} schools:`);
+        console.table(data);
+        
+        return data;
+    } catch (error) {
+        // Log error details
+        console.error('❌ Server connection failed!');
+        
+        if (error.message.includes('Failed to fetch')) {
+            console.error('Could not reach the server. Possible causes:');
+            console.error('1. Server is not running on the specified port');
+            console.error('2. CORS is not properly configured on the server');
+            console.error('3. Network or firewall issues are blocking the connection');
+        } else {
+            console.error(`Error: ${error.message}`);
+        }
+        
+        // Re-throw the error for further handling
+        throw error;
+    }
+}
+
+// Export the test function to the global scope for console access
+window.testServerConnection = testServerConnection;
+
+// Auto-run the server test on page load if the URL parameter is set
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('autotest') === 'true') {
+        console.log('Auto-running server connection test...');
+        setTimeout(() => {
+            if (window.serverTest && window.serverTest.run) {
+                window.serverTest.run('server-test-container');
+            } else {
+                testServerConnection().catch(err => console.error('Auto-test failed:', err));
+            }
+        }, 1000); // Slight delay to ensure everything else is loaded
+    }
+});

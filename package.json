@@ -11,12 +11,21 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.0"
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikosWork1/Industrial_Project.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/NikosWork1/Industrial_Project/issues"
+  },
+  "homepage": "https://github.com/NikosWork1/Industrial_Project#readme"
 }

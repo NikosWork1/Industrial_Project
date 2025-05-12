@@ -9,11 +9,16 @@ let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 
 // Parse JWT token (if any) and get user data
+console.log('Initializing auth module. Checking for stored token...');
+
 if (authToken) {
+    console.log('Found auth token in localStorage:', authToken);
+    
     try {
         // In a real app this would decode the JWT token
         // For demo, we'll just check if the token matches our mock admin user
         if (authToken === 'admin-token') {
+            console.log('Recognized admin token');
             currentUser = {
                 id: 101,
                 firstName: 'Admin',
@@ -21,81 +26,188 @@ if (authToken) {
                 email: 'admin@medcollege.edu',
                 role: 'admin'
             };
-            updateUIForLoggedInUser(currentUser);
+            console.log('Admin user authenticated:', currentUser);
+            
+            // Make sure DOM is ready before updating UI
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOM loaded, updating UI for admin user');
+                updateUIForLoggedInUser(currentUser);
+            });
+            
+            // If DOM is already loaded, update UI immediately
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                console.log('DOM already loaded, updating UI for admin user immediately');
+                updateUIForLoggedInUser(currentUser);
+            }
         } else if (authToken === 'user-token') {
-            // Sample user token
-            currentUser = window.mockData?.alumni[0] || {
-                id: 1,
-                firstName: 'John',
-                lastName: 'Smith',
-                email: 'john.smith@example.com',
-                role: 'user',
-                schoolId: 2,
-                schoolName: 'School of Computing'
-            };
-            updateUIForLoggedInUser(currentUser);
+            console.log('Recognized user token');
+            
+            // Check if mockData is available yet
+            if (window.mockData && window.mockData.alumni && window.mockData.alumni.length > 0) {
+                console.log('Mock data available, using first alumni entry');
+                currentUser = window.mockData.alumni[0];
+            } else {
+                console.log('Mock data not available, using default user object');
+                currentUser = {
+                    id: 1,
+                    firstName: 'John',
+                    lastName: 'Smith',
+                    email: 'john.smith@example.com',
+                    role: 'user',
+                    schoolId: 2,
+                    schoolName: 'School of Computing'
+                };
+            }
+            
+            console.log('Regular user authenticated:', currentUser);
+            
+            // Make sure DOM is ready before updating UI
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOM loaded, updating UI for regular user');
+                updateUIForLoggedInUser(currentUser);
+            });
+            
+            // If DOM is already loaded, update UI immediately
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                console.log('DOM already loaded, updating UI for regular user immediately');
+                updateUIForLoggedInUser(currentUser);
+            }
         } else {
+            console.warn('Unrecognized token found:', authToken);
+            console.log('Removing invalid token from localStorage');
             localStorage.removeItem('authToken');
             authToken = null;
         }
     } catch (e) {
-        console.error('Invalid token format', e);
+        console.error('Error processing auth token:', e);
+        console.error('Stack trace:', e.stack);
+        console.log('Removing invalid token from localStorage');
         localStorage.removeItem('authToken');
         authToken = null;
     }
+} else {
+    console.log('No auth token found. User is not authenticated.');
 }
 
 /**
  * Handles the login form submission
  * DEMO: Uses hardcoded credentials instead of API calls
  */
-document.getElementById('login-form-element')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Setting up login form handler');
     
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const loginForm = document.getElementById('login-form-element');
     
-    try {
-        // Demo implementation with hardcoded credentials
-        if (email === 'admin@medcollege.edu' && password === 'admin123') {
-            // Admin login
-            authToken = 'admin-token';
-            localStorage.setItem('authToken', authToken);
-            currentUser = {
-                id: 101,
-                firstName: 'Admin',
-                lastName: 'User',
-                email: 'admin@medcollege.edu',
-                role: 'admin'
-            };
-            
-            updateUIForLoggedInUser(currentUser);
-            showPage('home-page');
-            alert('Admin login successful!');
-        } else if (email === 'john.smith@example.com' && password === 'password123') {
-            // Regular user login
-            authToken = 'user-token';
-            localStorage.setItem('authToken', authToken);
-            currentUser = window.mockData?.alumni[0] || {
-                id: 1,
-                firstName: 'John',
-                lastName: 'Smith',
-                email: 'john.smith@example.com',
-                role: 'user',
-                schoolId: 2,
-                schoolName: 'School of Computing'
-            };
-            
-            updateUIForLoggedInUser(currentUser);
-            showPage('home-page');
-            alert('Login successful!');
-        } else {
-            throw new Error('Invalid email or password');
-        }
-    } catch (error) {
-        alert(error.message);
-        console.error('Login error:', error);
+    if (!loginForm) {
+        console.error('Login form element not found in the DOM');
+        return;
     }
+    
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log('Login form submitted');
+        
+        // Get form elements
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+        
+        if (!emailInput || !passwordInput) {
+            console.error('Login form inputs not found:', {
+                emailInput: !!emailInput,
+                passwordInput: !!passwordInput
+            });
+            alert('Error: Login form is not properly configured');
+            return;
+        }
+        
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        
+        console.log('Attempting login with email:', email);
+        
+        if (!email || !password) {
+            console.warn('Empty email or password submitted');
+            alert('Please enter both email and password');
+            return;
+        }
+        
+        try {
+            // Show loading indicator if available
+            if (window.loading && window.loading.show) {
+                window.loading.show('login-form', 'Logging in...');
+            }
+            
+            // Demo implementation with hardcoded credentials
+            console.log('Checking credentials...');
+            
+            if (email === 'admin@medcollege.edu' && password === 'admin123') {
+                // Admin login
+                console.log('Admin credentials verified');
+                authToken = 'admin-token';
+                localStorage.setItem('authToken', authToken);
+                console.log('Admin token saved to localStorage');
+                
+                currentUser = {
+                    id: 101,
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    email: 'admin@medcollege.edu',
+                    role: 'admin'
+                };
+                
+                console.log('Admin user object created:', currentUser);
+                updateUIForLoggedInUser(currentUser);
+                showPage('home-page');
+                
+                // Success notification
+                console.log('Admin login completed successfully');
+                alert('Admin login successful!');
+            } else if (email === 'john.smith@example.com' && password === 'password123') {
+                // Regular user login
+                console.log('Regular user credentials verified');
+                authToken = 'user-token';
+                localStorage.setItem('authToken', authToken);
+                console.log('User token saved to localStorage');
+                
+                // Check if mockData is available
+                if (window.mockData && window.mockData.alumni && window.mockData.alumni.length > 0) {
+                    console.log('Using mock alumni data for user');
+                    currentUser = window.mockData.alumni[0];
+                } else {
+                    console.log('Mock data not available, using default user object');
+                    currentUser = {
+                        id: 1,
+                        firstName: 'John',
+                        lastName: 'Smith',
+                        email: 'john.smith@example.com',
+                        role: 'user',
+                        schoolId: 2,
+                        schoolName: 'School of Computing'
+                    };
+                }
+                
+                console.log('Regular user object created:', currentUser);
+                updateUIForLoggedInUser(currentUser);
+                showPage('home-page');
+                
+                // Success notification
+                console.log('User login completed successfully');
+                alert('Login successful!');
+            } else {
+                console.warn('Invalid credentials provided');
+                throw new Error('Invalid email or password');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            console.error('Stack trace:', error.stack);
+            alert(error.message || 'Login failed due to an unexpected error');
+        } finally {
+            // Hide loading indicator if it was shown
+            if (window.loading && window.loading.hide) {
+                window.loading.hide('login-form');
+            }
+        }
+    });
 });
 
 /**
@@ -165,20 +277,65 @@ document.getElementById('register-form-element')?.addEventListener('submit', asy
 /**
  * Handles user logout
  */
-document.getElementById('logout-btn')?.addEventListener('click', (e) => {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Setting up logout button handler');
     
-    // Clear authentication data
-    authToken = null;
-    currentUser = null;
-    localStorage.removeItem('authToken');
+    const logoutButton = document.getElementById('logout-btn');
     
-    // Update UI for logged out state
-    updateUIForLoggedOutUser();
+    if (!logoutButton) {
+        console.error('Logout button not found in the DOM');
+        return;
+    }
     
-    // Redirect to home page
-    showPage('home-page');
-    alert('You have been logged out.');
+    logoutButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        console.log('Logout clicked - clearing authentication data');
+        
+        try {
+            // Show loading indicator if available
+            if (window.loading && window.loading.show) {
+                window.loading.show('user-profile', 'Logging out...');
+            }
+            
+            // Clear ALL authentication-related data
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken'); // In case you're using session storage too
+            
+            // Update UI for logged out state
+            updateUIForLoggedOutUser();
+            
+            // Force reset of UI elements
+            document.getElementById('auth-buttons').style.display = 'flex';
+            document.getElementById('user-profile').style.display = 'none';
+            document.getElementById('admin-link-container').style.display = 'none';
+            
+            // Update UI elements in the header
+            const adminUserDropdown = document.querySelector('.dropdown-toggle');
+            if (adminUserDropdown) {
+                adminUserDropdown.style.display = 'none';
+            }
+            
+            // Redirect to home page
+            showPage('home-page');
+            console.log('Logout complete - redirected to home page');
+            alert('You have been logged out.');
+            
+            // Optional: Force page reload to ensure clean state
+            // window.location.reload();
+        } catch (error) {
+            console.error('Error during logout:', error);
+            console.error('Stack trace:', error.stack);
+            alert('There was a problem logging out. Please try again.');
+        } finally {
+            // Hide loading indicator if it was shown
+            if (window.loading && window.loading.hide) {
+                window.loading.hide('user-profile');
+            }
+        }
+    });
 });
 
 /**
@@ -186,18 +343,59 @@ document.getElementById('logout-btn')?.addEventListener('click', (e) => {
  * @param {Object} user - The user object
  */
 function updateUIForLoggedInUser(user) {
-    // Hide auth buttons, show user profile
-    document.getElementById('auth-buttons').style.display = 'none';
-    document.getElementById('user-profile').style.display = 'flex';
+    console.log('Updating UI for logged in user:', user ? user.id : 'undefined user');
     
-    // Set user name in dropdown
-    document.getElementById('user-name').textContent = `${user.firstName} ${user.lastName}`;
+    if (!user) {
+        console.error('Cannot update UI for undefined user');
+        return;
+    }
     
-    // Show admin link if user is admin
-    if (user.role === 'admin') {
-        document.getElementById('admin-link-container').style.display = 'block';
-    } else {
-        document.getElementById('admin-link-container').style.display = 'none';
+    try {
+        // Get UI elements
+        const authButtons = document.getElementById('auth-buttons');
+        const userProfile = document.getElementById('user-profile');
+        const userName = document.getElementById('user-name');
+        const adminLinkContainer = document.getElementById('admin-link-container');
+        
+        // Check if elements exist
+        if (!authButtons) {
+            console.error('auth-buttons element not found in DOM');
+        } else {
+            authButtons.style.display = 'none';
+            console.log('Hidden auth buttons');
+        }
+        
+        if (!userProfile) {
+            console.error('user-profile element not found in DOM');
+        } else {
+            userProfile.style.display = 'flex';
+            console.log('Showing user profile dropdown');
+        }
+        
+        if (!userName) {
+            console.error('user-name element not found in DOM');
+        } else {
+            userName.textContent = `${user.firstName || 'User'} ${user.lastName || ''}`;
+            console.log('Updated user name in dropdown to:', userName.textContent);
+        }
+        
+        // Show admin link if user is admin
+        if (!adminLinkContainer) {
+            console.error('admin-link-container element not found in DOM');
+        } else {
+            if (user.role === 'admin') {
+                adminLinkContainer.style.display = 'block';
+                console.log('Showing admin link (user is admin)');
+            } else {
+                adminLinkContainer.style.display = 'none';
+                console.log('Hiding admin link (user is not admin)');
+            }
+        }
+        
+        console.log('UI successfully updated for logged in user');
+    } catch (error) {
+        console.error('Error updating UI for logged in user:', error);
+        console.error('Stack trace:', error.stack);
     }
 }
 
@@ -205,12 +403,42 @@ function updateUIForLoggedInUser(user) {
  * Updates the UI elements for a logged-out user
  */
 function updateUIForLoggedOutUser() {
-    // Show auth buttons, hide user profile
-    document.getElementById('auth-buttons').style.display = 'flex';
-    document.getElementById('user-profile').style.display = 'none';
+    console.log('Updating UI for logged out user');
     
-    // Hide admin link
-    document.getElementById('admin-link-container').style.display = 'none';
+    try {
+        // Get UI elements
+        const authButtons = document.getElementById('auth-buttons');
+        const userProfile = document.getElementById('user-profile');
+        const adminLinkContainer = document.getElementById('admin-link-container');
+        
+        // Check if elements exist
+        if (!authButtons) {
+            console.error('auth-buttons element not found in DOM');
+        } else {
+            authButtons.style.display = 'flex';
+            console.log('Showing auth buttons');
+        }
+        
+        if (!userProfile) {
+            console.error('user-profile element not found in DOM');
+        } else {
+            userProfile.style.display = 'none';
+            console.log('Hiding user profile dropdown');
+        }
+        
+        // Hide admin link
+        if (!adminLinkContainer) {
+            console.error('admin-link-container element not found in DOM');
+        } else {
+            adminLinkContainer.style.display = 'none';
+            console.log('Hiding admin link');
+        }
+        
+        console.log('UI successfully updated for logged out user');
+    } catch (error) {
+        console.error('Error updating UI for logged out user:', error);
+        console.error('Stack trace:', error.stack);
+    }
 }
 
 /**
