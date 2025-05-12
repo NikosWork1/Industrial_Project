@@ -13,7 +13,7 @@ async function testServerConnection(baseUrl = 'http://localhost:3000') {
     
     const results = {
         success: false,
-        endpoint: `${baseUrl}/api/schools`,
+        endpoint: `${baseUrl}/api/status`,
         error: null,
         data: null,
         timestamp: new Date().toISOString(),
@@ -27,7 +27,7 @@ async function testServerConnection(baseUrl = 'http://localhost:3000') {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         
-        const response = await fetch(`${baseUrl}/api/schools`, {
+        const response = await fetch(`${baseUrl}/api/status`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -51,7 +51,8 @@ async function testServerConnection(baseUrl = 'http://localhost:3000') {
         
         console.log('✅ Server connection successful!');
         console.log(`Response time: ${results.responseTime}ms`);
-        console.log('Schools data received:', data.length, 'schools');
+        console.log('Server status:', data.status);
+        console.log('Server message:', data.message);
         
         return results;
     } catch (error) {
@@ -109,7 +110,7 @@ function displayServerTestResults(results, containerId) {
                 ` : ''}
                 ${results.success ? `
                     <div class="alert alert-success">
-                        <strong>Success!</strong> Received data for ${results.data.length} schools.
+                        <strong>Success!</strong> Server status: ${results.data.status}. ${results.data.message}
                     </div>
                 ` : ''}
             </div>

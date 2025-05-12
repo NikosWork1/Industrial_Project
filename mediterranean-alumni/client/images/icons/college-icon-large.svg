@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+  <!-- Gradient background -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003d80;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0056b3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#007bff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Rounded square with gradient -->
+  <rect width="150" height="150" rx="20" ry="20" fill="url(#grad1)" filter="url(#shadow)"/>
+  
+  <!-- College Building Symbol -->
+  <g fill="#fff" transform="translate(35, 35) scale(1.6)">
+    <!-- Roof -->
+    <polygon points="25,0 0,15 50,15" fill="#fff"/>
+    <!-- Building -->
+    <rect x="5" y="15" width="40" height="30" fill="#fff"/>
+    <!-- Door -->
+    <rect x="20" y="30" width="10" height="15" fill="url(#grad2)"/>
+    <!-- Windows -->
+    <rect x="10" y="20" width="8" height="8" fill="url(#grad2)"/>
+    <rect x="32" y="20" width="8" height="8" fill="url(#grad2)"/>
+    <!-- Pillars -->
+    <rect x="7" y="15" width="3" height="30" fill="url(#grad2)"/>
+    <rect x="40" y="15" width="3" height="30" fill="url(#grad2)"/>
+  </g>
+  
+  <!-- College Initials -->
+  <text x="75" y="115" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">MC</text>
+</svg>

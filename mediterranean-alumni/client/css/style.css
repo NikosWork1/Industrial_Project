@@ -2,13 +2,33 @@
 
 /* Base Styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Poppins', sans-serif;
     color: #333;
+    background-color: #f8f9fa;
+    line-height: 1.6;
 }
 
 /* Custom Colors */
 .navbar {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(90deg, #0056b3 0%, #007bff 100%) !important;
+}
+
+.navbar-brand img {
+    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #003d80;
+    border-color: #003d80;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
 }
 
 /* Profile styles */
@@ -19,29 +39,116 @@ body {
     border-bottom: 1px solid #dee2e6;
 }
 
-/* Card hover effects */
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+#profile-image {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 3px solid #fff;
+    transition: transform 0.3s ease;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+#profile-image:hover {
+    transform: scale(1.05);
+}
+
+.profile-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card .card-header {
+    background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+}
+
+#profile-name {
+    color: #0056b3;
+    font-weight: 600;
+}
+
+#profile-school, #profile-graduation, #profile-job {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+#profile-links {
+    margin-top: 1.5rem;
+}
+
+#profile-linkedin {
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+}
+
+#profile-linkedin:hover {
+    background-color: #0A66C2;
+    color: white;
+    border-color: #0A66C2;
+}
+
+/* Card styling */
 .card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #f1f8ff;
+    border-bottom: 1px solid #e3f2fd;
+    font-weight: 500;
+}
+
+.card-title {
+    color: #0056b3;
 }
 
 /* Footer tweaks */
+footer {
+    background: linear-gradient(90deg, #222 0%, #444 100%) !important;
+    margin-top: 50px !important;
+}
+
 footer a {
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
 }
 
 footer a:hover {
     color: #f8f9fa !important;
     text-decoration: none;
+    transform: translateX(5px);
 }
 
 /* Admin dashboard styles */
 .tab-content {
     background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0056b3;
+    border-color: #dee2e6 #dee2e6 #fff;
 }
 
 /* Alumni directory card */
@@ -56,4 +163,93 @@ footer a:hover {
 
 .alumni-card .card-text {
     flex-grow: 1;
+}
+
+.alumni-card img {
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Form styling */
+.form-control, .form-select {
+    border-radius: 6px;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Home page jumbotron */
+.bg-light.rounded-3 {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border: none !important;
+}
+
+/* Search and filter bar */
+#search-alumni, .form-select {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+#search-alumni:focus, .form-select:focus {
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+}
+
+/* Animation effects */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container > div[id$="-page"], .container > div[id$="-form"], 
+.container > div[id="profile-view"], .container > div[id="profile-edit"] {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Card animations */
+.alumni-card, #schools-container .card {
+    animation: slideUpFade 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Staggered animation for cards */
+.col:nth-child(1) .alumni-card { animation-delay: 0.1s; }
+.col:nth-child(2) .alumni-card { animation-delay: 0.2s; }
+.col:nth-child(3) .alumni-card { animation-delay: 0.3s; }
+.col:nth-child(4) .alumni-card { animation-delay: 0.4s; }
+.col:nth-child(5) .alumni-card { animation-delay: 0.5s; }
+.col:nth-child(6) .alumni-card { animation-delay: 0.6s; }
+.col:nth-child(7) .alumni-card { animation-delay: 0.7s; }
+.col:nth-child(8) .alumni-card { animation-delay: 0.8s; }
+.col:nth-child(9) .alumni-card { animation-delay: 0.9s; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    #profile-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    h1.display-5 {
+        font-size: calc(1.4rem + 1.5vw);
+    }
 }

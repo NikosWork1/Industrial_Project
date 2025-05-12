@@ -157,7 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('Admin user object created:', currentUser);
                 updateUIForLoggedInUser(currentUser);
-                showPage('home-page');
+                
+                // Use the global showPage function in main.js if available
+                if (window.main && typeof window.main.showPage === 'function') {
+                    window.main.showPage('home-page');
+                } else {
+                    // Otherwise use our local implementation
+                    showPage('home-page');
+                }
                 
                 // Success notification
                 console.log('Admin login completed successfully');
@@ -188,7 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('Regular user object created:', currentUser);
                 updateUIForLoggedInUser(currentUser);
-                showPage('home-page');
+                
+                // Use the global showPage function in main.js if available
+                if (window.main && typeof window.main.showPage === 'function') {
+                    window.main.showPage('home-page');
+                } else {
+                    // Otherwise use our local implementation
+                    showPage('home-page');
+                }
                 
                 // Success notification
                 console.log('User login completed successfully');
@@ -214,64 +228,156 @@ document.addEventListener('DOMContentLoaded', () => {
  * Handles the registration form submission
  * DEMO: Simulates registration without API call
  */
-document.getElementById('register-form-element')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Setting up registration form handler');
     
-    // Get all form fields
-    const formData = {
-        firstName: document.getElementById('first-name').value,
-        lastName: document.getElementById('last-name').value,
-        email: document.getElementById('register-email').value,
-        password: document.getElementById('register-password').value,
-        confirmPassword: document.getElementById('confirm-password').value,
-        schoolId: document.getElementById('school').value,
-        graduationYear: document.getElementById('graduation-year').value,
-        degree: document.getElementById('degree').value,
-        currentPosition: document.getElementById('current-position').value,
-        company: document.getElementById('company').value,
-        bio: document.getElementById('bio').value,
-        linkedinUrl: document.getElementById('linkedin').value,
-        isPublic: document.getElementById('public-profile').checked
-    };
+    const registerForm = document.getElementById('register-form-element');
     
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-        alert('Passwords do not match');
+    if (!registerForm) {
+        console.error('Registration form element not found in the DOM');
         return;
     }
     
-    try {
-        // In a real app, this would be a POST request to register
-        // For demo purposes, we'll just show a success message
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log('Registration form submitted');
         
-        // Add to pending applications if mock data is available
-        if (window.mockData && window.mockData.pendingApplications) {
+        // Get all form fields
+        const formData = {
+            firstName: document.getElementById('first-name')?.value.trim(),
+            lastName: document.getElementById('last-name')?.value.trim(),
+            email: document.getElementById('register-email')?.value.trim(),
+            password: document.getElementById('register-password')?.value,
+            confirmPassword: document.getElementById('confirm-password')?.value,
+            schoolId: document.getElementById('school')?.value,
+            graduationYear: document.getElementById('graduation-year')?.value,
+            degree: document.getElementById('degree')?.value.trim(),
+            currentPosition: document.getElementById('current-position')?.value.trim(),
+            company: document.getElementById('company')?.value.trim(),
+            bio: document.getElementById('bio')?.value.trim(),
+            linkedinUrl: document.getElementById('linkedin')?.value.trim(),
+            isPublic: document.getElementById('public-profile')?.checked
+        };
+        
+        // Add console logs to check the data
+        console.log("Registration form data:", formData);
+        
+        // Validate required fields
+        if (!formData.firstName || !formData.lastName) {
+            alert('Name fields are required');
+            return;
+        }
+        
+        if (!formData.email) {
+            alert('Email is required');
+            return;
+        }
+        
+        if (!formData.schoolId) {
+            alert('Please select a school');
+            return;
+        }
+        
+        // Validate passwords match
+        if (formData.password !== formData.confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        // Show loading indicator if available
+        if (window.loading && window.loading.show) {
+            window.loading.show('register-form', 'Registering...');
+        }
+        
+        try {
+            // In a real app, this would be a POST request to register
+            
+            // Check if mockData exists
+            if (!window.mockData) {
+                console.error("mockData not found - creating empty mockData object");
+                window.mockData = {
+                    pendingApplications: [],
+                    schools: [
+                        { id: 1, name: 'School of Business' },
+                        { id: 2, name: 'School of Computing' },
+                        { id: 3, name: 'School of Engineering' },
+                        { id: 4, name: 'School of Health Sciences' },
+                        { id: 5, name: 'School of Humanities' }
+                    ]
+                };
+            }
+            
+            if (!window.mockData.pendingApplications) {
+                console.error("pendingApplications array not found - creating empty array");
+                window.mockData.pendingApplications = [];
+            }
+            
+            // Check if email already exists
+            const emailExists = 
+                (window.mockData.users && window.mockData.users.some(u => u.email === formData.email)) || 
+                window.mockData.pendingApplications.some(p => p.email === formData.email);
+            
+            if (emailExists) {
+                throw new Error('This email is already registered');
+            }
+            
+            // Generate a unique ID
+            const newId = Date.now();
+            
+            // Find school name
+            let schoolName = 'Unknown School';
+            if (window.mockData.schools) {
+                const school = window.mockData.schools.find(s => s.id.toString() === formData.schoolId);
+                if (school) {
+                    schoolName = school.name;
+                }
+            }
+            
+            // Create the new pending application
             const newPendingApp = {
-                id: 204, // Generate a new ID
+                id: newId,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 schoolId: parseInt(formData.schoolId),
-                schoolName: window.mockData.schools.find(s => s.id.toString() === formData.schoolId)?.name || '',
-                graduationYear: parseInt(formData.graduationYear),
+                schoolName: schoolName,
+                graduationYear: parseInt(formData.graduationYear) || null,
                 degree: formData.degree,
                 currentPosition: formData.currentPosition,
                 company: formData.company,
                 bio: formData.bio,
-                isPublic: formData.isPublic
+                linkedinUrl: formData.linkedinUrl,
+                isPublic: formData.isPublic === true
             };
             
+            console.log("Adding new pending application:", newPendingApp);
+            
+            // Add to pending applications
             window.mockData.pendingApplications.push(newPendingApp);
+            
+            console.log("Pending applications after adding:", window.mockData.pendingApplications);
+            
+            // Show success message and redirect to login
+            alert('Registration successful! Your application is pending approval.');
+            
+            // Use the global showPage function in main.js if available
+            if (window.main && typeof window.main.showPage === 'function') {
+                window.main.showPage('login-form');
+            } else {
+                // Otherwise use our local implementation
+                showPage('login-form');
+            }
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert('Registration failed: ' + (error.message || 'Unknown error'));
+        } finally {
+            // Hide loading indicator if it was shown
+            if (window.loading && window.loading.hide) {
+                window.loading.hide('register-form');
+            }
         }
-        
-        // Show success message and redirect to login
-        alert('Registration successful! Your application is pending approval.');
-        showPage('login-form');
-        
-    } catch (error) {
-        alert(error.message || 'Registration failed');
-        console.error('Registration error:', error);
-    }
+    });
 });
 
 /**
@@ -319,7 +425,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Redirect to home page
-            showPage('home-page');
+            // Use the global showPage function in main.js if available
+            if (window.main && typeof window.main.showPage === 'function') {
+                window.main.showPage('home-page');
+            } else {
+                // Otherwise use our local implementation
+                showPage('home-page');
+            }
+            
             console.log('Logout complete - redirected to home page');
             alert('You have been logged out.');
             
@@ -446,12 +559,26 @@ function updateUIForLoggedOutUser() {
  */
 document.getElementById('go-to-register')?.addEventListener('click', (e) => {
     e.preventDefault();
-    showPage('register-form');
+    
+    // Use the global showPage function in main.js if available
+    if (window.main && typeof window.main.showPage === 'function') {
+        window.main.showPage('register-form');
+    } else {
+        // Otherwise use our local implementation
+        showPage('register-form');
+    }
 });
 
 document.getElementById('go-to-login')?.addEventListener('click', (e) => {
     e.preventDefault();
-    showPage('login-form');
+    
+    // Use the global showPage function in main.js if available
+    if (window.main && typeof window.main.showPage === 'function') {
+        window.main.showPage('login-form');
+    } else {
+        // Otherwise use our local implementation
+        showPage('login-form');
+    }
 });
 
 /**
@@ -490,8 +617,10 @@ window.auth = {
 // Helper function to handle page navigation
 // This is defined in main.js but needed here for demo purposes
 function showPage(pageId) {
-    if (typeof window.showPage === 'function') {
-        window.showPage(pageId);
+    // Check if the global showPage function exists in window object (defined in main.js)
+    // But DON'T call it with window.showPage as that would create an infinite recursion
+    if (window.main && typeof window.main.showPage === 'function') {
+        window.main.showPage(pageId);
         return;
     }
     

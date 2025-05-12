@@ -91,25 +91,40 @@ function displayProfile(user) {
     if (user.profileImage) {
         profileImage.src = user.profileImage;
     } else {
-        profileImage.src = 'images/default-profile.png';
+        profileImage.src = 'images/icons/default-avatar.svg';
     }
     
     // Set user details
     document.getElementById('profile-name').textContent = `${user.firstName} ${user.lastName}`;
     
+    const jobElement = document.getElementById('profile-job');
     if (user.currentPosition && user.company) {
-        document.getElementById('profile-job').textContent = `${user.currentPosition} at ${user.company}`;
+        jobElement.innerHTML = `<i class="fas fa-briefcase me-2"></i>${user.currentPosition} at ${user.company}`;
     } else if (user.currentPosition) {
-        document.getElementById('profile-job').textContent = user.currentPosition;
+        jobElement.innerHTML = `<i class="fas fa-briefcase me-2"></i>${user.currentPosition}`;
     } else if (user.company) {
-        document.getElementById('profile-job').textContent = `Works at ${user.company}`;
+        jobElement.innerHTML = `<i class="fas fa-building me-2"></i>Works at ${user.company}`;
     } else {
-        document.getElementById('profile-job').textContent = '';
+        jobElement.innerHTML = '';
     }
     
     // Set school and graduation info
-    document.getElementById('profile-school').textContent = user.schoolName || '';
-    document.getElementById('profile-graduation').textContent = user.graduationYear ? `Class of ${user.graduationYear}` : '';
+    const schoolElement = document.getElementById('profile-school');
+    const gradElement = document.getElementById('profile-graduation');
+    
+    if (user.schoolName) {
+        schoolElement.innerHTML = `<i class="fas fa-university me-2"></i>${user.schoolName}`;
+        schoolElement.style.display = 'block';
+    } else {
+        schoolElement.style.display = 'none';
+    }
+    
+    if (user.graduationYear) {
+        gradElement.innerHTML = `<i class="fas fa-graduation-cap me-2"></i>Class of ${user.graduationYear}`;
+        gradElement.style.display = 'block';
+    } else {
+        gradElement.style.display = 'none';
+    }
     
     // Set LinkedIn link if available
     const linkedinLink = document.getElementById('profile-linkedin');
@@ -242,11 +257,11 @@ async function loadProfileEditForm() {
         console.log('Form populated successfully');
         
         // Show the edit form
-        if (typeof window.showPage === 'function') {
-            console.log('Using window.showPage to display profile-edit');
-            window.showPage('profile-edit');
+        if (window.main && typeof window.main.showPage === 'function') {
+            console.log('Using window.main.showPage to display profile-edit');
+            window.main.showPage('profile-edit');
         } else {
-            console.warn('window.showPage not available, using fallback display method');
+            console.warn('window.main.showPage not available, using fallback display method');
             // Fallback if main.js hasn't loaded
             const profileView = document.getElementById('profile-view');
             if (profileView) profileView.style.display = 'none';
@@ -427,11 +442,11 @@ async function populateProfileEditForm(user) {
             
             newCancelBtn.addEventListener('click', () => {
                 console.log('Cancel button clicked');
-                if (typeof window.showPage === 'function') {
-                    console.log('Using window.showPage to return to profile-view');
-                    window.showPage('profile-view');
+                if (window.main && typeof window.main.showPage === 'function') {
+                    console.log('Using window.main.showPage to return to profile-view');
+                    window.main.showPage('profile-view');
                 } else {
-                    console.warn('window.showPage not available, using fallback display method');
+                    console.warn('window.main.showPage not available, using fallback display method');
                     // Fallback if main.js hasn't loaded
                     const profileEdit = document.getElementById('profile-edit');
                     const profileView = document.getElementById('profile-view');
@@ -520,8 +535,8 @@ async function handleProfileUpdate(e) {
         await loadProfile(currentProfileId);
         
         // Show profile view
-        if (typeof window.showPage === 'function') {
-            window.showPage('profile-view');
+        if (window.main && typeof window.main.showPage === 'function') {
+            window.main.showPage('profile-view');
         } else {
             // Fallback if main.js hasn't loaded
             document.getElementById('profile-edit').style.display = 'none';
@@ -543,8 +558,8 @@ document.getElementById('view-profile')?.addEventListener('click', (e) => {
     const currentUser = window.auth?.getCurrentUser();
     if (currentUser) {
         loadProfile(currentUser.id.toString());
-        if (typeof window.showPage === 'function') {
-            window.showPage('profile-view');
+        if (window.main && typeof window.main.showPage === 'function') {
+            window.main.showPage('profile-view');
         } else {
             // Make profile visible if main.js hasn't loaded
             const pages = document.querySelectorAll('.container > div[id$="-page"], .container > div[id$="-form"], .container > div[id="profile-edit"]');

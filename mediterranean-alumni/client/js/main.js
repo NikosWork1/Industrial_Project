@@ -498,15 +498,25 @@ function displayAlumni(alumni) {
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h5 class="card-title">${alumnus.firstName} ${alumnus.lastName}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">${alumnus.schoolName || 'School not specified'}</h6>
-                            <p class="card-text text-muted">${alumnus.graduationYear ? 'Class of ' + alumnus.graduationYear : ''}</p>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <i class="fas fa-university me-1"></i> ${alumnus.schoolName || 'School not specified'}
+                            </h6>
+                            <p class="card-text text-muted">
+                                ${alumnus.graduationYear ? '<i class="fas fa-graduation-cap me-1"></i> Class of ' + alumnus.graduationYear : ''}
+                            </p>
                         </div>
-                        <img src="${alumnus.profileImage || 'images/default-profile.png'}" class="rounded-circle" width="60" height="60">
+                        <img src="${alumnus.profileImage || 'images/icons/default-avatar.svg'}" class="rounded-circle" width="70" height="70">
                     </div>
-                    <p class="card-text">${alumnus.currentPosition ? alumnus.currentPosition + (alumnus.company ? ' at ' + alumnus.company : '') : 'Position not specified'}</p>
+                    <p class="card-text">
+                        <i class="fas fa-briefcase me-1"></i> 
+                        ${alumnus.currentPosition ? alumnus.currentPosition + (alumnus.company ? ' at ' + alumnus.company : '') : 'Position not specified'}
+                    </p>
+                    ${alumnus.bio ? `<p class="card-text small text-muted text-truncate">${alumnus.bio.substring(0, 100)}${alumnus.bio.length > 100 ? '...' : ''}</p>` : ''}
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary btn-sm view-profile" data-user-id="${alumnus.id}">View Profile</button>
+                    <button class="btn btn-primary btn-sm view-profile" data-user-id="${alumnus.id}">
+                        <i class="fas fa-user me-1"></i> View Profile
+                    </button>
                 </div>
             </div>
         `;
@@ -1071,6 +1081,14 @@ window.mockData = {
     pendingApplications: mockPendingApplications
 };
 
+// Log to verify the mockData was properly initialized
+console.log('mockData initialized:', {
+    schools: window.mockData.schools?.length || 0,
+    alumni: window.mockData.alumni?.length || 0,
+    users: window.mockData.users?.length || 0,
+    pendingApplications: window.mockData.pendingApplications?.length || 0
+});
+
 /**
  * Test server connectivity to the /api/schools endpoint
  * Run this function from the browser console to check if the server is accessible
@@ -1144,3 +1162,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000); // Slight delay to ensure everything else is loaded
     }
 });
+
+// Export key functions to global scope
+window.main = {
+    showPage: showPage
+};
