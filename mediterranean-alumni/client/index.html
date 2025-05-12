@@ -1,0 +1,389 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mediterranean College Alumni Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <\!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Mediterranean College Alumni</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="home-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="schools-link">Schools</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="alumni-link">Alumni Directory</a>
+                    </li>
+                    <li class="nav-item" id="admin-link-container" style="display: none;">
+                        <a class="nav-link" href="#" id="admin-link">Admin Dashboard</a>
+                    </li>
+                </ul>
+                <div class="d-flex" id="auth-buttons">
+                    <button class="btn btn-light me-2" id="login-btn">Login</button>
+                    <button class="btn btn-outline-light" id="register-btn">Register</button>
+                </div>
+                <div class="d-flex" id="user-profile" style="display: none;">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown">
+                            <span id="user-name">User</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" id="view-profile">View Profile</a></li>
+                            <li><a class="dropdown-item" href="#" id="edit-profile">Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logout-btn">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <\!-- Main Content Area -->
+    <div class="container mt-4">
+        <\!-- Home/Welcome Page -->
+        <div id="home-page">
+            <div class="p-5 mb-4 bg-light rounded-3">
+                <div class="container-fluid py-5">
+                    <h1 class="display-5 fw-bold">Welcome to Mediterranean College Alumni Network</h1>
+                    <p class="fs-4">Connect with fellow graduates, build your professional network, and stay updated with college news and events.</p>
+                    <button class="btn btn-primary btn-lg" id="join-now-btn">Join Now</button>
+                </div>
+            </div>
+
+            <div class="row align-items-md-stretch">
+                <div class="col-md-6 mb-4">
+                    <div class="h-100 p-5 bg-light border rounded-3">
+                        <h2>Our Alumni Community</h2>
+                        <p>Join thousands of Mediterranean College graduates who are making an impact across various industries worldwide.</p>
+                        <button class="btn btn-outline-primary" id="browse-alumni-btn">Browse Alumni</button>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="h-100 p-5 text-white bg-primary rounded-3">
+                        <h2>Stay Connected</h2>
+                        <p>Discover upcoming events, networking opportunities, and ways to give back to your alma mater.</p>
+                        <button class="btn btn-outline-light" id="events-btn">View Events</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <\!-- Login Form -->
+        <div id="login-form" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Login</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="login-form-element">
+                                <div class="mb-3">
+                                    <label for="login-email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="login-email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="login-password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="login-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </form>
+                            <p class="mt-3">Don't have an account? <a href="#" id="go-to-register">Register now</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <\!-- Registration Form -->
+        <div id="register-form" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Alumni Registration</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="register-form-element">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first-name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="first-name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last-name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="last-name" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="register-email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="register-email" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="register-password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="register-password" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirm-password" class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" id="confirm-password" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="school" class="form-label">School</label>
+                                        <select class="form-select" id="school" required>
+                                            <option value="" selected disabled>Select your school</option>
+                                            <option value="1">School of Business</option>
+                                            <option value="2">School of Computing</option>
+                                            <option value="3">School of Engineering</option>
+                                            <option value="4">School of Health Sciences</option>
+                                            <option value="5">School of Humanities</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="graduation-year" class="form-label">Graduation Year</label>
+                                        <input type="number" class="form-control" id="graduation-year" min="1900" max="2025">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="degree" class="form-label">Degree</label>
+                                    <input type="text" class="form-control" id="degree">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="current-position" class="form-label">Current Position</label>
+                                    <input type="text" class="form-control" id="current-position">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="company" class="form-label">Company</label>
+                                    <input type="text" class="form-control" id="company">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label">Short Bio</label>
+                                    <textarea class="form-control" id="bio" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="linkedin" class="form-label">LinkedIn URL (optional)</label>
+                                    <input type="url" class="form-control" id="linkedin">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="public-profile" checked>
+                                        <label class="form-check-label" for="public-profile">
+                                            Make my profile public to other alumni
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </form>
+                            <p class="mt-3">Already have an account? <a href="#" id="go-to-login">Login here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <\!-- Schools Section -->
+        <div id="schools-page" style="display: none;">
+            <h2 class="mb-4">Our Schools</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4" id="schools-container">
+                <\!-- School cards will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <\!-- Alumni Directory -->
+        <div id="alumni-page" style="display: none;">
+            <h2 class="mb-4">Alumni Directory</h2>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <select class="form-select" id="filter-school">
+                        <option value="0" selected>All Schools</option>
+                        <option value="1">School of Business</option>
+                        <option value="2">School of Computing</option>
+                        <option value="3">School of Engineering</option>
+                        <option value="4">School of Health Sciences</option>
+                        <option value="5">School of Humanities</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filter-year">
+                        <option value="0" selected>All Years</option>
+                        <\!-- Years will be dynamically loaded -->
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="search-alumni" placeholder="Search by name or company">
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4" id="alumni-container">
+                <\!-- Alumni cards will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <\!-- Admin Dashboard -->
+        <div id="admin-page" style="display: none;">
+            <h2 class="mb-4">Admin Dashboard</h2>
+            <ul class="nav nav-tabs" id="adminTabs">
+                <li class="nav-item">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending">Pending Applications</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users">Manage Users</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="schools-tab" data-bs-toggle="tab" data-bs-target="#schools-admin">Manage Schools</button>
+                </li>
+            </ul>
+            <div class="tab-content p-3 border border-top-0 rounded-bottom">
+                <div class="tab-pane fade show active" id="pending">
+                    <h4>Pending Alumni Applications</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>School</th>
+                                <th>Graduation Year</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-applications">
+                            <\!-- Pending applications will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="users">
+                    <h4>All Users</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>School</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-users">
+                            <\!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="schools-admin">
+                    <h4>Manage Schools</h4>
+                    <button class="btn btn-primary mb-3" id="add-school-btn">Add New School</button>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>School Name</th>
+                                <th>Description</th>
+                                <th>Alumni Count</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schools-list">
+                            <\!-- Schools will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <\!-- Profile View -->
+        <div id="profile-view" style="display: none;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <img src="images/default-profile.png" class="rounded-circle mb-3" id="profile-image" width="150">
+                            <h3 id="profile-name">John Doe</h3>
+                            <p class="text-muted" id="profile-job">Software Engineer at Tech Company</p>
+                            <p id="profile-school">School of Computing</p>
+                            <p id="profile-graduation">Class of 2022</p>
+                            <div id="profile-links">
+                                <a href="#" class="btn btn-outline-primary btn-sm" id="profile-linkedin" target="_blank">
+                                    <i class="bi bi-linkedin"></i> LinkedIn
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>About</h4>
+                            <p id="profile-bio">Biography will appear here.</p>
+                            
+                            <h4>Education</h4>
+                            <p id="profile-degree">BSc in Computer Science</p>
+                            
+                            <div id="profile-edit-container" style="display: none;">
+                                <a href="#" class="btn btn-primary" id="edit-profile-btn">Edit Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <\!-- Profile Edit Form -->
+        <div id="profile-edit" style="display: none;">
+            <\!-- This will be similar to the registration form but pre-filled with user data -->
+        </div>
+    </div>
+
+    <\!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Mediterranean College Alumni Network</h5>
+                    <p>Connecting graduates and building a stronger community.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Home</a></li>
+                        <li><a href="#" class="text-white">Schools</a></li>
+                        <li><a href="#" class="text-white">Alumni Directory</a></li>
+                        <li><a href="#" class="text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li>Email: alumni@medcollege.edu</li>
+                        <li>Phone: +30 210 1234567</li>
+                        <li>Address: Athens, Greece</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2025 Mediterranean College. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <\!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <\!-- Main JavaScript -->
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+EOL < /dev/null

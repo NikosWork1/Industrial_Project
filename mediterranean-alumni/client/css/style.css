@@ -1,0 +1,59 @@
+/* Main Styles for Mediterranean College Alumni Network */
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Custom Colors */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile styles */
+.profile-header {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer tweaks */
+footer a {
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #f8f9fa !important;
+    text-decoration: none;
+}
+
+/* Admin dashboard styles */
+.tab-content {
+    background-color: #fff;
+}
+
+/* Alumni directory card */
+.alumni-card {
+    height: 100%;
+}
+
+.alumni-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.alumni-card .card-text {
+    flex-grow: 1;
+}
