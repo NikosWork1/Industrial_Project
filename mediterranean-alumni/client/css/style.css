@@ -1,0 +1,163 @@
+/* Main Styles for Mediterranean College Alumni Network */
+
+:root {
+    --mc-purple: #6a1b9a;
+    --mc-purple-dark: #4a148c;
+    --mc-purple-light: #8e24aa;
+    --mc-purple-hover: #7b1fa2;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main content wrapper */
+.container.mt-4 {
+    flex: 1 0 auto;
+}
+
+/* Add margin for fixed footer pages */
+.fixed-footer-page .container.mt-4 {
+    margin-bottom: 300px; /* Space for footer */
+}
+
+/* Custom Colors */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Override Bootstrap primary color */
+.bg-primary {
+    background-color: var(--mc-purple) !important;
+}
+
+.btn-primary {
+    background-color: var(--mc-purple) !important;
+    border-color: var(--mc-purple) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--mc-purple-hover) !important;
+    border-color: var(--mc-purple-hover) !important;
+}
+
+.btn-outline-primary {
+    color: var(--mc-purple) !important;
+    border-color: var(--mc-purple) !important;
+}
+
+.btn-outline-primary:hover {
+    color: #fff !important;
+    background-color: var(--mc-purple) !important;
+}
+
+.text-primary {
+    color: var(--mc-purple) !important;
+}
+
+a {
+    color: var(--mc-purple);
+}
+
+a:hover {
+    color: var(--mc-purple-hover);
+}
+
+/* Profile styles */
+.profile-header {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer tweaks */
+footer {
+    width: 100%;
+    background-color: #343a40;
+    z-index: 1000;
+}
+
+/* Fixed footer style */
+footer.fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+footer a {
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #f8f9fa !important;
+    text-decoration: none;
+}
+
+/* Admin dashboard styles */
+.tab-content {
+    background-color: #fff;
+}
+
+/* Alumni directory card */
+.alumni-card {
+    height: 100%;
+}
+
+.alumni-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.alumni-card .card-text {
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+
+.alumni-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Form focus states */
+.form-control:focus {
+    border-color: var(--mc-purple-light);
+    box-shadow: 0 0 0 0.25rem rgba(106, 27, 154, 0.25);
+}
+
+/* Dropdown menu hover states */
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(106, 27, 154, 0.1);
+}
+
+/* Active nav links */
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Nav tabs customization */
+.nav-tabs .nav-link.active {
+    color: var(--mc-purple) !important;
+    border-color: var(--mc-purple) !important;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--mc-purple-light) !important;
+}
