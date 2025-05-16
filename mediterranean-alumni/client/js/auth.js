@@ -9,11 +9,7 @@ let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 
 // Parse JWT token (if any) and get user data
-console.log('Initializing auth module. Checking for stored token...');
-
 if (authToken) {
-    console.log('Found auth token in localStorage');
-    
     try {
         // Parse JWT token to extract user information
         const tokenParts = authToken.split('.');
@@ -24,11 +20,9 @@ if (authToken) {
         
         // Decode the payload (middle part of JWT)
         const payload = JSON.parse(atob(tokenParts[1]));
-        console.log('Token payload:', payload);
         
         // Check if token is expired
         if (payload.exp && payload.exp * 1000 < Date.now()) {
-            console.warn('Token has expired');
             throw new Error('Token expired');
         }
         
@@ -43,29 +37,21 @@ if (authToken) {
             schoolName: payload.schoolName
         };
         
-        console.log('User authenticated from token:', currentUser);
-        
         // Make sure DOM is ready before updating UI
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, updating UI for authenticated user');
             updateUIForLoggedInUser(currentUser);
         });
         
         // If DOM is already loaded, update UI immediately
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            console.log('DOM already loaded, updating UI immediately');
             updateUIForLoggedInUser(currentUser);
         }
     } catch (e) {
         console.error('Error processing auth token:', e);
-        console.error('Stack trace:', e.stack);
-        console.log('Removing invalid token from localStorage');
         localStorage.removeItem('authToken');
         authToken = null;
         currentUser = null;
     }
-} else {
-    console.log('No auth token found. User is not authenticated.');
 }
 
 /**

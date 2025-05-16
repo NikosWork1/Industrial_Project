@@ -9,7 +9,6 @@ let currentPage = 'home-page';
 
 // Initialize the app when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing app');
     initializeApp();
 });
 
@@ -17,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
  * Initializes the application
  */
 function initializeApp() {
-    console.log('initializeApp called');
-    
     // Set up navigation
     setupEventListeners();
     
@@ -33,23 +30,17 @@ function initializeApp() {
         
         // Export update function to window.auth
         window.auth.updateUIForLoggedInUser = window.auth.updateUIForLoggedInUser;
-        
-        console.log('Exported showPage and updateUIForLoggedInUser to auth module');
-    } else {
-        console.error('Error: auth module not available at initialization');
     }
     
     // Load data for the current page
     loadPageData(currentPage);
-    
-    console.log('App initialization complete');
 }
 
 /**
  * Sets up event listeners for navigation and buttons
  */
 function setupEventListeners() {
-    // Navigation links - Fixed IDs to match HTML
+    // Navigation links
     document.getElementById('home-link')?.addEventListener('click', (e) => {
         e.preventDefault();
         showPage('home-page');
@@ -57,14 +48,12 @@ function setupEventListeners() {
     
     document.getElementById('schools-link')?.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('[NAV] Schools link clicked');
         showPage('schools-page');
         loadSchools();
     });
     
     document.getElementById('alumni-link')?.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('[NAV] Alumni link clicked');
         showPage('alumni-page');
         loadAlumniDirectory();
     });
@@ -132,29 +121,22 @@ function setupEventListeners() {
  * @param {string} pageId - The ID of the page to show
  */
 function showPage(pageId) {
-    console.log(`showPage called with pageId: ${pageId}`);
-    
     // Get all pages
     const pages = document.querySelectorAll('.container > div[id$="-page"], .container > div[id$="-form"], .container > div[id="profile-view"], .container > div[id="profile-edit"]');
-    console.log(`Found ${pages.length} pages to manage`);
     
     // Hide all pages
     pages.forEach(page => {
         page.style.display = 'none';
-        console.log(`Hidden page: ${page.id}`);
     });
     
     // Show the requested page
     const pageToShow = document.getElementById(pageId);
     if (pageToShow) {
-        console.log(`Showing page: ${pageId}`);
         pageToShow.style.display = 'block';
         currentPage = pageId;
         
         // Update active nav link
         updateActiveNavLink(pageId);
-    } else {
-        console.error(`Page not found: ${pageId}`);
     }
 }
 
@@ -485,31 +467,23 @@ function initGraduationYearFilter() {
  * Sets up admin-specific functions
  */
 async function loadAdminData() {
-    console.log('loadAdminData called');
-    
     // Check authentication and admin role
     if (!window.auth) {
-        console.error('Error: auth module not available');
         return;
     }
     
     if (!window.auth.isAuthenticated()) {
-        console.warn('User is not authenticated');
         return;
     }
     
     const currentUser = window.auth.getCurrentUser();
     if (!currentUser) {
-        console.error('Error: Current user data not available');
         return;
     }
     
     if (currentUser.role !== 'admin') {
-        console.warn('User is not an admin:', currentUser.role);
         return;
     }
-    
-    console.log('Admin authentication verified');
     
     // Show loading indicator if available
     if (window.loading && window.loading.show) {
@@ -926,193 +900,4 @@ window.main = {
     showPage: showPage
 };
 
-// Fix for username display
-(function() {
-    console.log('[USERNAME FIX] Starting username display fix');
-    
-    function updateUsername() {
-        if (window.auth && window.auth.isAuthenticated() && window.auth.getCurrentUser()) {
-            var user = window.auth.getCurrentUser();
-            var userNameElement = document.getElementById('user-name');
-            if (userNameElement) {
-                var displayName = (user.firstName || 'User') + ' ' + (user.lastName || '');
-                userNameElement.textContent = displayName.trim();
-                console.log('[USERNAME FIX] Updated username to:', displayName);
-            }
-        }
-    }
-    
-    // Update on load and after delays
-    updateUsername();
-    setTimeout(updateUsername, 500);
-    setTimeout(updateUsername, 1000);
-    
-    // Override auth update function
-    if (window.auth) {
-        var originalUpdate = window.auth.updateUIForLoggedInUser;
-        window.auth.updateUIForLoggedInUser = function(user) {
-            console.log('[USERNAME FIX] Intercepted updateUIForLoggedInUser');
-            if (originalUpdate) {
-                originalUpdate.call(this, user);
-            }
-            updateUsername();
-        };
-    }
-})();
 
-// Navigation debugging and fix
-(function() {
-    console.log('[NAV FIX] Starting navigation fix');
-    
-    // Force fix navigation after a delay to ensure everything is loaded
-    function forceFixNavigation() {
-        console.log('[NAV FIX] Running navigation fix');
-        
-        // Schools link
-        var schoolsLink = document.getElementById('schools-link');
-        if (schoolsLink) {
-            schoolsLink.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[NAV FIX] Schools clicked - direct handler');
-                
-                // Hide all pages first
-                document.querySelectorAll('.container > div').forEach(function(div) {
-                    div.style.display = 'none';
-                });
-                
-                // Show schools page
-                var schoolsPage = document.getElementById('schools-page');
-                if (schoolsPage) {
-                    schoolsPage.style.display = 'block';
-                    console.log('[NAV FIX] Schools page shown');
-                }
-                
-                // Call loadSchools
-                if (typeof loadSchools === 'function') {
-                    loadSchools();
-                }
-                
-                return false;
-            };
-            console.log('[NAV FIX] Schools link fixed');
-        }
-        
-        // Alumni link
-        var alumniLink = document.getElementById('alumni-link');
-        if (alumniLink) {
-            alumniLink.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[NAV FIX] Alumni clicked - direct handler');
-                
-                // Hide all pages first
-                document.querySelectorAll('.container > div').forEach(function(div) {
-                    div.style.display = 'none';
-                });
-                
-                // Show alumni page
-                var alumniPage = document.getElementById('alumni-page');
-                if (alumniPage) {
-                    alumniPage.style.display = 'block';
-                    console.log('[NAV FIX] Alumni page shown');
-                }
-                
-                // Call loadAlumniDirectory
-                if (typeof loadAlumniDirectory === 'function') {
-                    loadAlumniDirectory();
-                }
-                
-                return false;
-            };
-            console.log('[NAV FIX] Alumni link fixed');
-        }
-    }
-    
-    // Run immediately and after delays
-    forceFixNavigation();
-    setTimeout(forceFixNavigation, 500);
-    setTimeout(forceFixNavigation, 1000);
-    
-    // Debug function
-    window.debugNav = function() {
-        console.log('=== NAVIGATION DEBUG ===');
-        console.log('Schools link exists:', !!document.getElementById('schools-link'));
-        console.log('Alumni link exists:', !!document.getElementById('alumni-link'));
-        console.log('Schools page exists:', !!document.getElementById('schools-page'));
-        console.log('Alumni page exists:', !!document.getElementById('alumni-page'));
-        console.log('showPage function exists:', typeof showPage === 'function');
-        console.log('loadSchools function exists:', typeof loadSchools === 'function');
-        console.log('loadAlumniDirectory function exists:', typeof loadAlumniDirectory === 'function');
-        
-        // Check current event listeners
-        var schoolsLink = document.getElementById('schools-link');
-        if (schoolsLink) {
-            console.log('Schools link onclick:', schoolsLink.onclick);
-        }
-        var alumniLink = document.getElementById('alumni-link');
-        if (alumniLink) {
-            console.log('Alumni link onclick:', alumniLink.onclick);
-        }
-    };
-    
-    console.log('[NAV FIX] Navigation fix loaded. Run debugNav() to check status.');
-})();
-
-// Extreme navigation fix - add this to ensure navigation works
-window.addEventListener('load', function() {
-    console.log('[EXTREME NAV FIX] Window loaded, applying final fixes');
-    
-    // Test the navigation immediately
-    var testNav = function() {
-        var schoolsLink = document.getElementById('schools-link');
-        var alumniLink = document.getElementById('alumni-link');
-        
-        if (schoolsLink && alumniLink) {
-            console.log('[EXTREME NAV FIX] Both links found, fixing handlers');
-            
-            // Schools
-            schoolsLink.onclick = null;
-            schoolsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[EXTREME NAV FIX] Schools clicked!');
-                alert('Schools clicked - check console for debug info');
-                debugNav();
-                
-                // Direct page manipulation
-                document.querySelectorAll('.container > div').forEach(function(div) {
-                    div.style.display = 'none';
-                });
-                var schoolsPage = document.getElementById('schools-page');
-                if (schoolsPage) {
-                    schoolsPage.style.display = 'block';
-                }
-                loadSchools();
-            });
-            
-            // Alumni
-            alumniLink.onclick = null;
-            alumniLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[EXTREME NAV FIX] Alumni clicked!');
-                alert('Alumni clicked - check console for debug info');
-                debugNav();
-                
-                // Direct page manipulation
-                document.querySelectorAll('.container > div').forEach(function(div) {
-                    div.style.display = 'none';
-                });
-                var alumniPage = document.getElementById('alumni-page');
-                if (alumniPage) {
-                    alumniPage.style.display = 'block';
-                }
-                loadAlumniDirectory();
-            });
-        }
-    };
-    
-    testNav();
-    setTimeout(testNav, 2000);
-});
