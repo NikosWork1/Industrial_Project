@@ -1,7 +1,7 @@
 /**
  * Authentication Module for Mediterranean College Alumni Network
  * Handles user login, registration, and session management
- * DEMO VERSION: Using mock data instead of API calls
+ * Updated to use real API calls for both login and registration
  */
 
 // Store auth token in localStorage
@@ -12,71 +12,49 @@ let currentUser = null;
 console.log('Initializing auth module. Checking for stored token...');
 
 if (authToken) {
-    console.log('Found auth token in localStorage:', authToken);
+    console.log('Found auth token in localStorage');
     
     try {
-        // In a real app this would decode the JWT token
-        // For demo, we'll just check if the token matches our mock admin user
-        if (authToken === 'admin-token') {
-            console.log('Recognized admin token');
-            currentUser = {
-                id: 101,
-                firstName: 'Admin',
-                lastName: 'User',
-                email: 'admin@medcollege.edu',
-                role: 'admin'
-            };
-            console.log('Admin user authenticated:', currentUser);
-            
-            // Make sure DOM is ready before updating UI
-            document.addEventListener('DOMContentLoaded', () => {
-                console.log('DOM loaded, updating UI for admin user');
-                updateUIForLoggedInUser(currentUser);
-            });
-            
-            // If DOM is already loaded, update UI immediately
-            if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                console.log('DOM already loaded, updating UI for admin user immediately');
-                updateUIForLoggedInUser(currentUser);
-            }
-        } else if (authToken === 'user-token') {
-            console.log('Recognized user token');
-            
-            // Check if mockData is available yet
-            if (window.mockData && window.mockData.alumni && window.mockData.alumni.length > 0) {
-                console.log('Mock data available, using first alumni entry');
-                currentUser = window.mockData.alumni[0];
-            } else {
-                console.log('Mock data not available, using default user object');
-                currentUser = {
-                    id: 1,
-                    firstName: 'John',
-                    lastName: 'Smith',
-                    email: 'john.smith@example.com',
-                    role: 'user',
-                    schoolId: 2,
-                    schoolName: 'School of Computing'
-                };
-            }
-            
-            console.log('Regular user authenticated:', currentUser);
-            
-            // Make sure DOM is ready before updating UI
-            document.addEventListener('DOMContentLoaded', () => {
-                console.log('DOM loaded, updating UI for regular user');
-                updateUIForLoggedInUser(currentUser);
-            });
-            
-            // If DOM is already loaded, update UI immediately
-            if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                console.log('DOM already loaded, updating UI for regular user immediately');
-                updateUIForLoggedInUser(currentUser);
-            }
-        } else {
-            console.warn('Unrecognized token found:', authToken);
-            console.log('Removing invalid token from localStorage');
-            localStorage.removeItem('authToken');
-            authToken = null;
+        // Parse JWT token to extract user information
+        const tokenParts = authToken.split('.');
+        
+        if (tokenParts.length !== 3) {
+            throw new Error('Invalid token format');
+        }
+        
+        // Decode the payload (middle part of JWT)
+        const payload = JSON.parse(atob(tokenParts[1]));
+        console.log('Token payload:', payload);
+        
+        // Check if token is expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+            console.warn('Token has expired');
+            throw new Error('Token expired');
+        }
+        
+        // Extract user data from token payload
+        currentUser = {
+            id: payload.id,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            role: payload.role,
+            schoolId: payload.schoolId,
+            schoolName: payload.schoolName
+        };
+        
+        console.log('User authenticated from token:', currentUser);
+        
+        // Make sure DOM is ready before updating UI
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, updating UI for authenticated user');
+            updateUIForLoggedInUser(currentUser);
+        });
+        
+        // If DOM is already loaded, update UI immediately
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            console.log('DOM already loaded, updating UI immediately');
+            updateUIForLoggedInUser(currentUser);
         }
     } catch (e) {
         console.error('Error processing auth token:', e);
@@ -84,6 +62,7 @@ if (authToken) {
         console.log('Removing invalid token from localStorage');
         localStorage.removeItem('authToken');
         authToken = null;
+        currentUser = null;
     }
 } else {
     console.log('No auth token found. User is not authenticated.');
@@ -91,7 +70,7 @@ if (authToken) {
 
 /**
  * Handles the login form submission
- * DEMO: Uses hardcoded credentials instead of API calls
+ * Uses real API call to server endpoint
  */
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Setting up login form handler');
@@ -137,87 +116,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.loading.show('login-form', 'Logging in...');
             }
             
-            // Demo implementation with hardcoded credentials
-            console.log('Checking credentials...');
+            // Make real API call to login endpoint
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
             
-            if (email === 'admin@medcollege.edu' && password === 'admin123') {
-                // Admin login
-                console.log('Admin credentials verified');
-                authToken = 'admin-token';
-                localStorage.setItem('authToken', authToken);
-                console.log('Admin token saved to localStorage');
-                
-                currentUser = {
-                    id: 101,
-                    firstName: 'Admin',
-                    lastName: 'User',
-                    email: 'admin@medcollege.edu',
-                    role: 'admin'
-                };
-                
-                console.log('Admin user object created:', currentUser);
-                updateUIForLoggedInUser(currentUser);
-                
-                // Use the global showPage function in main.js if available
-                if (window.main && typeof window.main.showPage === 'function') {
-                    window.main.showPage('home-page');
+            const data = await response.json();
+            console.log('Login response:', data);
+            
+            if (!response.ok) {
+                // Handle specific error responses
+                if (response.status === 400) {
+                    throw new Error(data.message || 'Email and password are required');
+                } else if (response.status === 401) {
+                    throw new Error('Invalid email or password');
+                } else if (response.status === 403) {
+                    throw new Error(data.message || 'Account not authorized');
                 } else {
-                    // Otherwise use our local implementation
-                    showPage('home-page');
+                    throw new Error(data.message || 'Login failed');
                 }
-                
-                // Success notification
-                console.log('Admin login completed successfully');
-                alert('Admin login successful!');
-            } else if (email === 'john.smith@example.com' && password === 'password123') {
-                // Regular user login
-                console.log('Regular user credentials verified');
-                authToken = 'user-token';
-                localStorage.setItem('authToken', authToken);
-                console.log('User token saved to localStorage');
-                
-                // Check if mockData is available
-                if (window.mockData && window.mockData.alumni && window.mockData.alumni.length > 0) {
-                    console.log('Using mock alumni data for user');
-                    currentUser = window.mockData.alumni[0];
-                } else {
-                    console.log('Mock data not available, using default user object');
-                    currentUser = {
-                        id: 1,
-                        firstName: 'John',
-                        lastName: 'Smith',
-                        email: 'john.smith@example.com',
-                        role: 'user',
-                        schoolId: 2,
-                        schoolName: 'School of Computing'
-                    };
-                }
-                
-                console.log('Regular user object created:', currentUser);
-                updateUIForLoggedInUser(currentUser);
-                
-                // Use the global showPage function in main.js if available
-                if (window.main && typeof window.main.showPage === 'function') {
-                    window.main.showPage('home-page');
-                } else {
-                    // Otherwise use our local implementation
-                    showPage('home-page');
-                }
-                
-                // Success notification
-                console.log('User login completed successfully');
-                alert('Login successful!');
-            } else {
-                console.warn('Invalid credentials provided');
-                throw new Error('Invalid email or password');
             }
+            
+            // Store the JWT token
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            console.log('JWT token saved to localStorage');
+            
+            // Parse and store user data
+            currentUser = data.user;
+            console.log('User data received:', currentUser);
+            
+            // Update UI for logged-in user
+            updateUIForLoggedInUser(currentUser);
+            
+            // Clear the login form
+            loginForm.reset();
+            
+            // Show success message
+            const successMessage = data.message || 'Login successful!';
+            console.log(successMessage);
+            
+            // Optional: Show a brief success notification before redirecting
+            if (window.loading && window.loading.show) {
+                window.loading.show('login-form', successMessage);
+            }
+            
+            // Redirect to home page
+            setTimeout(() => {
+                if (window.main && typeof window.main.showPage === 'function') {
+                    window.main.showPage('home-page');
+                } else {
+                    // Otherwise use our local implementation
+                    showPage('home-page');
+                }
+                
+                // Hide loading after redirect
+                if (window.loading && window.loading.hide) {
+                    window.loading.hide('login-form');
+                }
+            }, 500); // Small delay to show success message
+            
         } catch (error) {
             console.error('Login error:', error);
-            console.error('Stack trace:', error.stack);
-            alert(error.message || 'Login failed due to an unexpected error');
+            
+            // Show user-friendly error message
+            let errorMessage = 'Login failed';
+            
+            if (error.message.includes('required')) {
+                errorMessage = 'Please enter both email and password';
+            } else if (error.message.includes('Invalid email or password')) {
+                errorMessage = 'Invalid email or password. Please try again.';
+            } else if (error.message.includes('pending approval')) {
+                errorMessage = 'Your account is pending approval. Please wait for an administrator to approve your registration.';
+            } else if (error.message === 'Failed to fetch') {
+                errorMessage = 'Cannot connect to server. Please check your connection.';
+            } else {
+                errorMessage = error.message || 'Login failed. Please try again.';
+            }
+            
+            alert(errorMessage);
         } finally {
-            // Hide loading indicator if it was shown
-            if (window.loading && window.loading.hide) {
+            // Hide loading indicator if it was shown (only if not successful)
+            if (!authToken && window.loading && window.loading.hide) {
                 window.loading.hide('login-form');
             }
         }
@@ -226,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Handles the registration form submission
- * DEMO: Simulates registration without API call
+ * Uses real API call to server endpoint
  */
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Setting up registration form handler');
@@ -284,83 +271,65 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Validate password length
+        if (formData.password.length < 6) {
+            alert('Password must be at least 6 characters long');
+            return;
+        }
+        
         // Show loading indicator if available
         if (window.loading && window.loading.show) {
             window.loading.show('register-form', 'Registering...');
         }
         
         try {
-            // In a real app, this would be a POST request to register
-            
-            // Check if mockData exists
-            if (!window.mockData) {
-                console.error("mockData not found - creating empty mockData object");
-                window.mockData = {
-                    pendingApplications: [],
-                    schools: [
-                        { id: 1, name: 'School of Business' },
-                        { id: 2, name: 'School of Computing' },
-                        { id: 3, name: 'School of Engineering' },
-                        { id: 4, name: 'School of Health Sciences' },
-                        { id: 5, name: 'School of Humanities' }
-                    ]
-                };
-            }
-            
-            if (!window.mockData.pendingApplications) {
-                console.error("pendingApplications array not found - creating empty array");
-                window.mockData.pendingApplications = [];
-            }
-            
-            // Check if email already exists
-            const emailExists = 
-                (window.mockData.users && window.mockData.users.some(u => u.email === formData.email)) || 
-                window.mockData.pendingApplications.some(p => p.email === formData.email);
-            
-            if (emailExists) {
-                throw new Error('This email is already registered');
-            }
-            
-            // Generate a unique ID
-            const newId = Date.now();
-            
-            // Find school name
-            let schoolName = 'Unknown School';
-            if (window.mockData.schools) {
-                const school = window.mockData.schools.find(s => s.id.toString() === formData.schoolId);
-                if (school) {
-                    schoolName = school.name;
-                }
-            }
-            
-            // Create the new pending application
-            const newPendingApp = {
-                id: newId,
+            // Prepare data for API (without confirmPassword)
+            const apiData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
-                schoolId: parseInt(formData.schoolId),
-                schoolName: schoolName,
-                graduationYear: parseInt(formData.graduationYear) || null,
+                password: formData.password,
+                schoolId: formData.schoolId,
+                graduationYear: formData.graduationYear,
                 degree: formData.degree,
                 currentPosition: formData.currentPosition,
                 company: formData.company,
                 bio: formData.bio,
                 linkedinUrl: formData.linkedinUrl,
-                isPublic: formData.isPublic === true
+                isPublic: formData.isPublic
             };
             
-            console.log("Adding new pending application:", newPendingApp);
+            // Make real API call to register endpoint
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
             
-            // Add to pending applications
-            window.mockData.pendingApplications.push(newPendingApp);
+            const data = await response.json();
+            console.log('Registration response:', data);
             
-            console.log("Pending applications after adding:", window.mockData.pendingApplications);
+            if (!response.ok) {
+                // Handle specific error responses
+                if (response.status === 400 && data.missingFields) {
+                    throw new Error(`Missing required fields: ${data.missingFields.join(', ')}`);
+                } else if (response.status === 409) {
+                    throw new Error('This email is already registered');
+                } else {
+                    throw new Error(data.message || 'Registration failed');
+                }
+            }
             
-            // Show success message and redirect to login
-            alert('Registration successful! Your application is pending approval.');
+            // Show success message
+            alert(data.message || 'Registration successful! Your application is pending approval.');
             
-            // Use the global showPage function in main.js if available
+            // Clear the form
+            registerForm.reset();
+            
+            // Redirect to login page
+            console.log('Redirecting to login page...');
             if (window.main && typeof window.main.showPage === 'function') {
                 window.main.showPage('login-form');
             } else {
@@ -370,7 +339,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('Registration error:', error);
-            alert('Registration failed: ' + (error.message || 'Unknown error'));
+            
+            // Show user-friendly error message
+            let errorMessage = 'Registration failed';
+            
+            if (error.message.includes('Missing required fields')) {
+                errorMessage = error.message;
+            } else if (error.message.includes('already registered')) {
+                errorMessage = 'This email is already registered. Please login or use a different email.';
+            } else if (error.message.includes('Invalid email format')) {
+                errorMessage = 'Please enter a valid email address';
+            } else if (error.message.includes('at least 6 characters')) {
+                errorMessage = 'Password must be at least 6 characters long';
+            } else if (error.message.includes('Invalid school')) {
+                errorMessage = 'Please select a valid school';
+            } else if (error.message === 'Failed to fetch') {
+                errorMessage = 'Cannot connect to server. Please check your connection.';
+            } else {
+                errorMessage = error.message || 'Registration failed. Please try again.';
+            }
+            
+            alert(errorMessage);
         } finally {
             // Hide loading indicator if it was shown
             if (window.loading && window.loading.hide) {
@@ -410,13 +399,22 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('authToken');
             sessionStorage.removeItem('authToken'); // In case you're using session storage too
             
+            // Clear any cached user data
+            if (window.sessionStorage) {
+                window.sessionStorage.clear();
+            }
+            
             // Update UI for logged out state
             updateUIForLoggedOutUser();
             
             // Force reset of UI elements
-            document.getElementById('auth-buttons').style.display = 'flex';
-            document.getElementById('user-profile').style.display = 'none';
-            document.getElementById('admin-link-container').style.display = 'none';
+            const authButtons = document.getElementById('auth-buttons');
+            const userProfile = document.getElementById('user-profile');
+            const adminLinkContainer = document.getElementById('admin-link-container');
+            
+            if (authButtons) authButtons.style.display = 'flex';
+            if (userProfile) userProfile.style.display = 'none';
+            if (adminLinkContainer) adminLinkContainer.style.display = 'none';
             
             // Update UI elements in the header
             const adminUserDropdown = document.querySelector('.dropdown-toggle');
@@ -424,20 +422,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminUserDropdown.style.display = 'none';
             }
             
+            console.log('Logout complete - redirecting to home page');
+            
+            // Show logout message
+            alert('You have been logged out successfully.');
+            
             // Redirect to home page
-            // Use the global showPage function in main.js if available
             if (window.main && typeof window.main.showPage === 'function') {
                 window.main.showPage('home-page');
             } else {
-                // Otherwise use our local implementation
                 showPage('home-page');
             }
             
-            console.log('Logout complete - redirected to home page');
-            alert('You have been logged out.');
-            
-            // Optional: Force page reload to ensure clean state
-            // window.location.reload();
         } catch (error) {
             console.error('Error during logout:', error);
             console.error('Stack trace:', error.stack);

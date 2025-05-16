@@ -1,0 +1,88 @@
+<!-- Example Registration Form Structure -->
+<!-- This form works with the JavaScript registration handler in auth.js -->
+
+<form id="register-form-element" class="registration-form">
+    <!-- Required Fields -->
+    <div class="form-group">
+        <label for="first-name">First Name *</label>
+        <input type="text" id="first-name" name="firstName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="last-name">Last Name *</label>
+        <input type="text" id="last-name" name="lastName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="register-email">Email *</label>
+        <input type="email" id="register-email" name="email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="register-password">Password *</label>
+        <input type="password" id="register-password" name="password" required minlength="6">
+        <small>Minimum 6 characters</small>
+    </div>
+
+    <div class="form-group">
+        <label for="confirm-password">Confirm Password *</label>
+        <input type="password" id="confirm-password" name="confirmPassword" required>
+    </div>
+
+    <div class="form-group">
+        <label for="school">School *</label>
+        <select id="school" name="schoolId" required>
+            <option value="">Select your school</option>
+            <option value="1">School of Business</option>
+            <option value="2">School of Computing</option>
+            <option value="3">School of Engineering</option>
+            <option value="4">School of Health Sciences</option>
+            <option value="5">School of Humanities</option>
+        </select>
+    </div>
+
+    <!-- Optional Fields -->
+    <div class="form-group">
+        <label for="graduation-year">Graduation Year</label>
+        <input type="number" id="graduation-year" name="graduationYear" min="1900" max="2030">
+    </div>
+
+    <div class="form-group">
+        <label for="degree">Degree</label>
+        <input type="text" id="degree" name="degree" placeholder="e.g., Bachelor of Science">
+    </div>
+
+    <div class="form-group">
+        <label for="current-position">Current Position</label>
+        <input type="text" id="current-position" name="currentPosition" placeholder="e.g., Software Engineer">
+    </div>
+
+    <div class="form-group">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" placeholder="e.g., Tech Corp">
+    </div>
+
+    <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio" rows="4" placeholder="Tell us about yourself..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="linkedin">LinkedIn URL</label>
+        <input type="url" id="linkedin" name="linkedinUrl" placeholder="https://linkedin.com/in/yourprofile">
+    </div>
+
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="public-profile" name="isPublic" checked>
+            Make my profile public
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+    
+    <p>Already have an account? <a href="#" id="go-to-login">Login here</a></p>
+</form>
+
+<!-- Error/Success Message Display Area -->
+<div id="registration-message" style="display: none;" class="alert"></div>

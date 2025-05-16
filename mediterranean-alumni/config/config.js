@@ -12,7 +12,7 @@ const config = {
   },
   database: {
     dialect: process.env.DB_DIALECT || 'sqlite',
-    storage: process.env.DB_STORAGE || './mediterranean-alumni/database/mediterranean-alumni.sqlite',
+    storage: process.env.DB_STORAGE || './database/mediterranean-alumni.sqlite',
     logging: process.env.DB_LOGGING === 'true' ? console.log : false,
   },
   jwt: {

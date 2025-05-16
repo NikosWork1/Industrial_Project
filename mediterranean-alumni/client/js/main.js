@@ -1,287 +1,55 @@
 /**
  * Main Application Module for Mediterranean College Alumni Network
  * Handles page navigation, event listeners, and data loading
- * DEMO VERSION: Using mock data instead of API calls
+ * Uses real API calls to fetch and manage data
  */
 
 // Keep track of the current page
 let currentPage = 'home-page';
 
-// Mock Data for Schools
-const mockSchools = [
-    {
-        id: 1,
-        name: 'School of Business',
-        description: 'The School of Business offers degrees in Business Administration, Marketing, Finance, and Management.',
-        alumniCount: 145
-    },
-    {
-        id: 2,
-        name: 'School of Computing',
-        description: 'The School of Computing offers degrees in Computer Science, Software Engineering, Data Science, and Cybersecurity.',
-        alumniCount: 124
-    },
-    {
-        id: 3,
-        name: 'School of Engineering',
-        description: 'The School of Engineering offers degrees in Civil Engineering, Mechanical Engineering, Electrical Engineering, and Chemical Engineering.',
-        alumniCount: 98
-    },
-    {
-        id: 4,
-        name: 'School of Health Sciences',
-        description: 'The School of Health Sciences offers degrees in Nursing, Pharmacy, Physical Therapy, and Public Health.',
-        alumniCount: 112
-    },
-    {
-        id: 5,
-        name: 'School of Humanities',
-        description: 'The School of Humanities offers degrees in English, History, Philosophy, and Psychology.',
-        alumniCount: 86
-    }
-];
-
-// Mock Data for Alumni
-const mockAlumni = [
-    {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Smith',
-        email: 'john.smith@example.com',
-        schoolId: 2,
-        schoolName: 'School of Computing',
-        graduationYear: 2018,
-        degree: 'BSc in Computer Science',
-        currentPosition: 'Software Engineer',
-        company: 'Tech Innovations',
-        bio: 'Experienced software engineer with a passion for developing scalable applications. I have contributed to several open-source projects and enjoy mentoring junior developers.',
-        linkedinUrl: 'https://linkedin.com/in/johnsmith',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 2,
-        firstName: 'Maria',
-        lastName: 'Papadopoulos',
-        email: 'maria.p@example.com',
-        schoolId: 1,
-        schoolName: 'School of Business',
-        graduationYear: 2019,
-        degree: 'MBA in International Business',
-        currentPosition: 'Marketing Manager',
-        company: 'Global Marketing Solutions',
-        bio: 'Marketing professional with expertise in digital marketing strategies. I specialize in social media marketing and content creation for international brands.',
-        linkedinUrl: 'https://linkedin.com/in/maria-p',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 3,
-        firstName: 'Nikos',
-        lastName: 'Andreou',
-        email: 'nikos.a@example.com',
-        schoolId: 3,
-        schoolName: 'School of Engineering',
-        graduationYear: 2020,
-        degree: 'MSc in Civil Engineering',
-        currentPosition: 'Structural Engineer',
-        company: 'Athens Construction Group',
-        bio: 'Civil engineer specializing in structural design and analysis. I have worked on several major infrastructure projects across Greece and Europe.',
-        linkedinUrl: 'https://linkedin.com/in/nikos-andreou',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 4,
-        firstName: 'Elena',
-        lastName: 'Dimitriou',
-        email: 'elena.d@example.com',
-        schoolId: 4,
-        schoolName: 'School of Health Sciences',
-        graduationYear: 2021,
-        degree: 'BSc in Nursing',
-        currentPosition: 'Registered Nurse',
-        company: 'Athens General Hospital',
-        bio: 'Registered nurse with experience in emergency care. I am passionate about patient care and continuous professional development in healthcare.',
-        linkedinUrl: 'https://linkedin.com/in/elena-d',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 5,
-        firstName: 'Dimitris',
-        lastName: 'Georgiou',
-        email: 'dimitris.g@example.com',
-        schoolId: 5,
-        schoolName: 'School of Humanities',
-        graduationYear: 2017,
-        degree: 'BA in Psychology',
-        currentPosition: 'Clinical Psychologist',
-        company: 'Athens Mental Health Center',
-        bio: 'Clinical psychologist specializing in cognitive behavioral therapy. I work with clients of all ages and have a particular interest in anxiety disorders.',
-        linkedinUrl: 'https://linkedin.com/in/dimitris-g',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 6,
-        firstName: 'Sophia',
-        lastName: 'Karagianni',
-        email: 'sophia.k@example.com',
-        schoolId: 2,
-        schoolName: 'School of Computing',
-        graduationYear: 2022,
-        degree: 'MSc in Data Science',
-        currentPosition: 'Data Scientist',
-        company: 'Analytics Solutions',
-        bio: 'Data scientist with expertise in machine learning and statistical analysis. I enjoy solving complex problems using data-driven approaches.',
-        linkedinUrl: 'https://linkedin.com/in/sophia-k',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 7,
-        firstName: 'Andreas',
-        lastName: 'Panagiotou',
-        email: 'andreas.p@example.com',
-        schoolId: 1,
-        schoolName: 'School of Business',
-        graduationYear: 2018,
-        degree: 'BSc in Finance',
-        currentPosition: 'Financial Analyst',
-        company: 'National Bank of Greece',
-        bio: 'Financial analyst with experience in investment banking and asset management. I provide strategic financial advice to businesses and individuals.',
-        linkedinUrl: 'https://linkedin.com/in/andreas-p',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 8,
-        firstName: 'Christina',
-        lastName: 'Alexiou',
-        email: 'christina.a@example.com',
-        schoolId: 3,
-        schoolName: 'School of Engineering',
-        graduationYear: 2019,
-        degree: 'BSc in Electrical Engineering',
-        currentPosition: 'Electrical Engineer',
-        company: 'Power Systems Ltd',
-        bio: 'Electrical engineer specializing in power systems and renewable energy. I have worked on several sustainable energy projects across Greece.',
-        linkedinUrl: 'https://linkedin.com/in/christina-a',
-        profileImage: null,
-        isPublic: true
-    },
-    {
-        id: 9,
-        firstName: 'George',
-        lastName: 'Papadakis',
-        email: 'george.p@example.com',
-        schoolId: 4,
-        schoolName: 'School of Health Sciences',
-        graduationYear: 2020,
-        degree: 'PharmD in Pharmacy',
-        currentPosition: 'Pharmacist',
-        company: 'Central Pharmacy',
-        bio: 'Licensed pharmacist with experience in community and clinical pharmacy. I am committed to providing quality healthcare services and medication advice.',
-        linkedinUrl: 'https://linkedin.com/in/george-p',
-        profileImage: null,
-        isPublic: true
-    }
-];
-
-// Mock Data for Users
-const mockUsers = [
-    {
-        id: 101,
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@medcollege.edu',
-        role: 'admin',
-        schoolId: null,
-        graduationYear: null,
-        degree: null,
-        currentPosition: 'System Administrator',
-        company: 'Mediterranean College',
-        bio: 'Administrator account for the Mediterranean College Alumni Network.',
-        isPublic: false
-    },
-    ...mockAlumni
-];
-
-// Mock Data for Pending Applications
-const mockPendingApplications = [
-    {
-        id: 201,
-        firstName: 'Katerina',
-        lastName: 'Nikolaou',
-        email: 'katerina.n@example.com',
-        schoolId: 5,
-        schoolName: 'School of Humanities',
-        graduationYear: 2022,
-        degree: 'BA in English Literature',
-        currentPosition: 'Content Writer',
-        company: 'Digital Media Agency',
-        bio: 'Recent graduate with a passion for literature and creative writing. Looking to connect with fellow alumni and explore career opportunities.',
-        isPublic: true
-    },
-    {
-        id: 202,
-        firstName: 'Kostas',
-        lastName: 'Vlachos',
-        email: 'kostas.v@example.com',
-        schoolId: 2,
-        schoolName: 'School of Computing',
-        graduationYear: 2023,
-        degree: 'BSc in Cybersecurity',
-        currentPosition: 'Security Analyst',
-        company: 'Secure Systems',
-        bio: 'Cybersecurity professional with a focus on network security and penetration testing. Eager to connect with alumni in the tech industry.',
-        isPublic: true
-    },
-    {
-        id: 203,
-        firstName: 'Eleni',
-        lastName: 'Papanikolaou',
-        email: 'eleni.p@example.com',
-        schoolId: 1,
-        schoolName: 'School of Business',
-        graduationYear: 2021,
-        degree: 'BSc in Marketing',
-        currentPosition: 'Digital Marketing Specialist',
-        company: 'Creative Marketing',
-        bio: 'Marketing specialist with expertise in SEO and content marketing. Looking to network with fellow Mediterranean College alumni.',
-        isPublic: true
-    }
-];
-
-// Initialize the application when DOM is loaded
+// Initialize the app when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Set up navigation event listeners
-    setupNavigation();
-    
-    // Load schools data for the schools page
-    loadSchools();
-    
-    // Load alumni data for the alumni directory
-    loadAlumniDirectory();
-    
-    // Set up filter event listeners
-    setupFilters();
-    
-    // Initialize the graduation year dropdown
-    initGraduationYearFilter();
-    
-    // Set up admin functions if user is admin
-    if (window.auth && window.auth.getCurrentUser() && window.auth.getCurrentUser().role === 'admin') {
-        setupAdminFunctions();
-    }
+    console.log('DOM loaded, initializing app');
+    initializeApp();
 });
 
 /**
- * Set up navigation and button event listeners
+ * Initializes the application
  */
-function setupNavigation() {
-    // Navbar links
+function initializeApp() {
+    console.log('initializeApp called');
+    
+    // Set up navigation
+    setupEventListeners();
+    
+    // Initialize filter dropdowns
+    initSchoolFilter();
+    initGraduationYearFilter();
+    
+    // If auth module exists and has necessary functions
+    if (window.auth && typeof window.auth.isAuthenticated === 'function') {
+        // Export showPage function to window.auth for use after login
+        window.auth.showPage = showPage;
+        
+        // Export update function to window.auth
+        window.auth.updateUIForLoggedInUser = window.auth.updateUIForLoggedInUser;
+        
+        console.log('Exported showPage and updateUIForLoggedInUser to auth module');
+    } else {
+        console.error('Error: auth module not available at initialization');
+    }
+    
+    // Load data for the current page
+    loadPageData(currentPage);
+    
+    console.log('App initialization complete');
+}
+
+/**
+ * Sets up event listeners for navigation and buttons
+ */
+function setupEventListeners() {
+    // Navigation links - Fixed IDs to match HTML
     document.getElementById('home-link')?.addEventListener('click', (e) => {
         e.preventDefault();
         showPage('home-page');
@@ -289,14 +57,30 @@ function setupNavigation() {
     
     document.getElementById('schools-link')?.addEventListener('click', (e) => {
         e.preventDefault();
+        console.log('[NAV] Schools link clicked');
         showPage('schools-page');
+        loadSchools();
     });
     
     document.getElementById('alumni-link')?.addEventListener('click', (e) => {
         e.preventDefault();
+        console.log('[NAV] Alumni link clicked');
         showPage('alumni-page');
+        loadAlumniDirectory();
     });
     
+    document.getElementById('nav-contact')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPage('contact-page');
+    });
+    
+    // Logo click
+    document.querySelector('.navbar-brand')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPage('home-page');
+    });
+    
+    // Admin link
     document.getElementById('admin-link')?.addEventListener('click', (e) => {
         e.preventDefault();
         showPage('admin-page');
@@ -397,83 +181,135 @@ function updateActiveNavLink(pageId) {
     
     switch (pageId) {
         case 'home-page':
-            activeLink = document.getElementById('home-link');
+            activeLink = document.getElementById('nav-home');
             break;
         case 'schools-page':
-            activeLink = document.getElementById('schools-link');
+            activeLink = document.getElementById('nav-schools');
             break;
         case 'alumni-page':
-            activeLink = document.getElementById('alumni-link');
+            activeLink = document.getElementById('nav-alumni');
+            break;
+        case 'contact-page':
+            activeLink = document.getElementById('nav-contact');
             break;
         case 'admin-page':
             activeLink = document.getElementById('admin-link');
             break;
-        case 'profile-view':
-        case 'profile-edit':
-            console.log('Profile page - not highlighting any nav link');
-            return;
         default:
-            console.log('Form or other page - not highlighting any nav link');
-            return;
+            console.log(`No nav link mapping for page: ${pageId}`);
+            break;
     }
     
     if (activeLink) {
-        console.log(`Setting active class on: ${activeLink.id || 'unnamed link'}`);
         activeLink.classList.add('active');
-    } else {
-        console.warn(`No active link found for page: ${pageId}`);
+        console.log(`Added active class to: ${activeLink.id}`);
     }
 }
 
 /**
- * Loads the schools data and populates the schools page
- * DEMO: Uses mock data instead of fetch
+ * Loads data for the current page (if needed)
+ * @param {string} pageId - The ID of the page being loaded
  */
-function loadSchools() {
-    // Using mockSchools data instead of fetch
-    const schools = mockSchools;
-    
+function loadPageData(pageId) {
+    switch (pageId) {
+        case 'schools-page':
+            loadSchools();
+            break;
+        case 'alumni-page':
+            loadAlumniDirectory();
+            break;
+        case 'admin-page':
+            if (window.auth && window.auth.isAuthenticated() && window.auth.getCurrentUser()?.role === 'admin') {
+                loadAdminData();
+            }
+            break;
+    }
+}
+
+/**
+ * Loads the schools data
+ * Uses real API call to fetch schools data
+ */
+async function loadSchools() {
     const schoolsContainer = document.getElementById('schools-container');
     schoolsContainer.innerHTML = '';
     
-    schools.forEach(school => {
-        const schoolCard = document.createElement('div');
-        schoolCard.className = 'col';
-        schoolCard.innerHTML = `
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">${school.name}</h5>
-                    <p class="card-text">${school.description || 'No description available.'}</p>
-                    <p class="text-muted">Alumni: ${school.alumniCount || 0}</p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-outline-primary view-school-alumni" data-school-id="${school.id}">View Alumni</button>
-                </div>
-            </div>
-        `;
-        
-        schoolsContainer.appendChild(schoolCard);
-    });
+    // Show loading indicator if available
+    if (window.loading && window.loading.show) {
+        window.loading.show('schools-page', 'Loading schools...');
+    }
     
-    // Add event listeners to view alumni buttons
-    document.querySelectorAll('.view-school-alumni').forEach(button => {
-        button.addEventListener('click', () => {
-            const schoolId = button.getAttribute('data-school-id');
-            document.getElementById('filter-school').value = schoolId;
-            filterAlumni();
-            showPage('alumni-page');
+    try {
+        // Make real API call to fetch schools
+        const response = await fetch('/api/schools');
+        const schools = await response.json();
+        
+        schools.forEach(school => {
+            const schoolCard = document.createElement('div');
+            schoolCard.className = 'col';
+            schoolCard.innerHTML = `
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">${school.name}</h5>
+                        <p class="card-text">${school.description || 'No description available.'}</p>
+                        <p class="text-muted">Alumni: ${school.alumniCount || 0}</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-outline-primary view-school-alumni" data-school-id="${school.id}">View Alumni</button>
+                    </div>
+                </div>
+            `;
+            
+            schoolsContainer.appendChild(schoolCard);
         });
-    });
+        
+        // Add event listeners to view alumni buttons
+        document.querySelectorAll('.view-school-alumni').forEach(button => {
+            button.addEventListener('click', () => {
+                const schoolId = button.getAttribute('data-school-id');
+                document.getElementById('filter-school').value = schoolId;
+                filterAlumni();
+                showPage('alumni-page');
+            });
+        });
+    } catch (error) {
+        console.error('Error loading schools:', error);
+        schoolsContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger">Failed to load schools. Please try again later.</div></div>';
+    } finally {
+        // Hide loading indicator if it was shown
+        if (window.loading && window.loading.hide) {
+            window.loading.hide('schools-page');
+        }
+    }
 }
 
 /**
  * Loads the alumni directory data
- * DEMO: Uses mock data instead of fetch
+ * Uses real API call to fetch alumni data
  */
-function loadAlumniDirectory() {
-    // Using mockAlumni data instead of fetch
-    const alumni = mockAlumni;
-    displayAlumni(alumni);
+async function loadAlumniDirectory() {
+    const alumniContainer = document.getElementById('alumni-container');
+    alumniContainer.innerHTML = '';
+    
+    // Show loading indicator if available
+    if (window.loading && window.loading.show) {
+        window.loading.show('alumni-page', 'Loading alumni...');
+    }
+    
+    try {
+        // Make real API call to fetch alumni data
+        const response = await fetch('/api/users/alumni');
+        const alumni = await response.json();
+        displayAlumni(alumni);
+    } catch (error) {
+        console.error('Error loading alumni:', error);
+        alumniContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger">Failed to load alumni data. Please try again later.</div></div>';
+    } finally {
+        // Hide loading indicator if it was shown
+        if (window.loading && window.loading.hide) {
+            window.loading.hide('alumni-page');
+        }
+    }
 }
 
 /**
@@ -508,64 +344,60 @@ function displayAlumni(alumni) {
                         <img src="${alumnus.profileImage || 'images/icons/default-avatar.svg'}" class="rounded-circle" width="70" height="70">
                     </div>
                     <p class="card-text">
-                        <i class="fas fa-briefcase me-1"></i> 
-                        ${alumnus.currentPosition ? alumnus.currentPosition + (alumnus.company ? ' at ' + alumnus.company : '') : 'Position not specified'}
+                        <i class="fas fa-briefcase me-1"></i> ${alumnus.currentPosition || 'Position not specified'}
+                        ${alumnus.company ? ` at ${alumnus.company}` : ''}
                     </p>
-                    ${alumnus.bio ? `<p class="card-text small text-muted text-truncate">${alumnus.bio.substring(0, 100)}${alumnus.bio.length > 100 ? '...' : ''}</p>` : ''}
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-primary btn-sm view-profile" data-user-id="${alumnus.id}">
-                        <i class="fas fa-user me-1"></i> View Profile
-                    </button>
+                    <p class="card-text alumni-bio">${alumnus.bio || 'No bio available.'}</p>
+                    <div class="d-flex justify-content-end">
+                        ${alumnus.linkedinUrl ? `<a href="${alumnus.linkedinUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fab fa-linkedin"></i> LinkedIn</a>` : ''}
+                    </div>
                 </div>
             </div>
         `;
         
         alumniContainer.appendChild(card);
     });
-    
-    // Add event listeners to view profile buttons
-    document.querySelectorAll('.view-profile').forEach(button => {
-        button.addEventListener('click', () => {
-            const userId = button.getAttribute('data-user-id');
-            window.profile.loadProfile(userId);
-            showPage('profile-view');
-        });
-    });
 }
 
 /**
- * Sets up event listeners for the alumni filters
+ * Sets up filters for the alumni directory
  */
-function setupFilters() {
+function initSchoolFilter() {
+    // School filter is now populated from the schools API
+    fetch('/api/schools')
+        .then(response => response.json())
+        .then(schools => {
+            const schoolSelect = document.getElementById('filter-school');
+            
+            // Clear existing options except the "All Schools" option
+            const allSchoolsOption = schoolSelect.querySelector('option[value="0"]');
+            schoolSelect.innerHTML = '';
+            schoolSelect.appendChild(allSchoolsOption);
+            
+            // Add school options
+            schools.forEach(school => {
+                const option = document.createElement('option');
+                option.value = school.id;
+                option.textContent = school.name;
+                schoolSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading schools for filter:', error);
+        });
+    
+    // Set up filter event listeners
     document.getElementById('filter-school')?.addEventListener('change', filterAlumni);
     document.getElementById('filter-year')?.addEventListener('change', filterAlumni);
-    document.getElementById('search-alumni')?.addEventListener('input', debounce(filterAlumni, 300));
+    document.getElementById('search-alumni')?.addEventListener('input', filterAlumni);
+    document.getElementById('filter-button')?.addEventListener('click', filterAlumni);
+    document.getElementById('clear-filters')?.addEventListener('click', clearFilters);
 }
 
 /**
- * Creates a simple debounce function for input events
- * @param {Function} func - The function to debounce
- * @param {number} wait - The debounce delay in milliseconds
- * @returns {Function} - The debounced function
+ * Filters the alumni directory based on selected criteria
  */
-function debounce(func, wait) {
-    let timeout;
-    return function() {
-        const context = this;
-        const args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            func.apply(context, args);
-        }, wait);
-    };
-}
-
-/**
- * Filters alumni based on selected criteria
- * DEMO: Filters mock data locally instead of making API calls
- */
-function filterAlumni() {
+async function filterAlumni() {
     console.log('filterAlumni function called');
     
     // Get filter values - safely handle potential missing elements
@@ -585,58 +417,47 @@ function filterAlumni() {
     // Parse filter values
     const schoolId = parseInt(filterSchoolEl.value) || 0;
     const graduationYear = parseInt(filterYearEl.value) || 0;
-    const searchQuery = searchAlumniEl.value.trim().toLowerCase();
+    const searchQuery = searchAlumniEl.value.trim();
     
     console.log('Filter criteria:', { schoolId, graduationYear, searchQuery });
-    console.log('Initial alumni count:', mockAlumni.length);
     
-    // Start with a copy of the mockAlumni data to avoid modifying the original
-    let filteredAlumni = [...mockAlumni];
+    const alumniContainer = document.getElementById('alumni-container');
+    alumniContainer.innerHTML = '';
     
-    // Filter by school
-    if (schoolId !== 0) {
-        console.log(`Filtering by school ID: ${schoolId}`);
-        const beforeCount = filteredAlumni.length;
-        filteredAlumni = filteredAlumni.filter(alumnus => alumnus.schoolId === schoolId);
-        console.log(`After school filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
+    // Show loading indicator if available
+    if (window.loading && window.loading.show) {
+        window.loading.show('alumni-page', 'Filtering alumni...');
     }
     
-    // Filter by graduation year
-    if (graduationYear !== 0) {
-        console.log(`Filtering by graduation year: ${graduationYear}`);
-        const beforeCount = filteredAlumni.length;
-        filteredAlumni = filteredAlumni.filter(alumnus => alumnus.graduationYear === graduationYear);
-        console.log(`After year filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
+    try {
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (schoolId !== 0) params.append('schoolId', schoolId);
+        if (graduationYear !== 0) params.append('graduationYear', graduationYear);
+        if (searchQuery) params.append('search', searchQuery);
+        
+        // Make real API call with query parameters
+        const response = await fetch(`/api/users/alumni?${params.toString()}`);
+        const filteredAlumni = await response.json();
+        
+        console.log('Final filtered alumni count:', filteredAlumni.length);
+        if (filteredAlumni.length === 0) {
+            console.log('No alumni matched the filter criteria');
+        } else {
+            console.log('First match:', filteredAlumni[0].firstName, filteredAlumni[0].lastName);
+        }
+        
+        // Display the filtered alumni
+        displayAlumni(filteredAlumni);
+    } catch (error) {
+        console.error('Error filtering alumni:', error);
+        alumniContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger">Failed to filter alumni. Please try again later.</div></div>';
+    } finally {
+        // Hide loading indicator if it was shown
+        if (window.loading && window.loading.hide) {
+            window.loading.hide('alumni-page');
+        }
     }
-    
-    // Filter by search query (name or company)
-    if (searchQuery) {
-        console.log(`Filtering by search query: "${searchQuery}"`);
-        const beforeCount = filteredAlumni.length;
-        filteredAlumni = filteredAlumni.filter(alumnus => {
-            const fullName = `${alumnus.firstName} ${alumnus.lastName}`.toLowerCase();
-            const company = (alumnus.company || '').toLowerCase();
-            const position = (alumnus.currentPosition || '').toLowerCase();
-            const degree = (alumnus.degree || '').toLowerCase();
-            
-            // Extended search to include position and degree
-            return fullName.includes(searchQuery) || 
-                   company.includes(searchQuery) || 
-                   position.includes(searchQuery) ||
-                   degree.includes(searchQuery);
-        });
-        console.log(`After search filter: ${filteredAlumni.length} alumni (removed ${beforeCount - filteredAlumni.length})`);
-    }
-    
-    console.log('Final filtered alumni count:', filteredAlumni.length);
-    if (filteredAlumni.length === 0) {
-        console.log('No alumni matched the filter criteria');
-    } else {
-        console.log('First match:', filteredAlumni[0].firstName, filteredAlumni[0].lastName);
-    }
-    
-    // Display the filtered alumni
-    displayAlumni(filteredAlumni);
 }
 
 /**
@@ -663,22 +484,7 @@ function initGraduationYearFilter() {
 /**
  * Sets up admin-specific functions
  */
-function setupAdminFunctions() {
-    // Load admin data when admin page is shown
-    document.getElementById('admin-link')?.addEventListener('click', loadAdminData);
-    
-    // Add school button
-    document.getElementById('add-school-btn')?.addEventListener('click', () => {
-        // In a real application, this would show a modal to add a new school
-        alert('Add school functionality will be implemented in a future version.');
-    });
-}
-
-/**
- * Loads data for the admin dashboard
- * DEMO: Uses mock data instead of fetch
- */
-function loadAdminData() {
+async function loadAdminData() {
     console.log('loadAdminData called');
     
     // Check authentication and admin role
@@ -705,48 +511,75 @@ function loadAdminData() {
     
     console.log('Admin authentication verified');
     
+    // Show loading indicator if available
+    if (window.loading && window.loading.show) {
+        window.loading.show('admin-page', 'Loading admin dashboard...');
+    }
+    
     try {
-        // Check if mock data is available
-        if (!mockPendingApplications) {
-            console.error('Error: mockPendingApplications is not defined');
+        // Get auth token
+        const authToken = window.auth?.authToken || localStorage.getItem('authToken');
+        
+        // Fetch pending applications
+        const pendingResponse = await fetch('/api/admin/users/pending', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (pendingResponse.ok) {
+            const pendingApplications = await pendingResponse.json();
+            console.log(`Loading ${pendingApplications.length} pending applications`);
+            displayPendingApplications(pendingApplications);
         } else {
-            console.log(`Loading ${mockPendingApplications.length} pending applications`);
-            // Display pending applications - pass a copy to avoid modification issues
-            displayPendingApplications([...mockPendingApplications]);
+            console.error('Failed to fetch pending applications');
+            displayPendingApplications([]);
         }
         
-        if (!mockUsers) {
-            console.error('Error: mockUsers is not defined');
+        // Fetch all users
+        const usersResponse = await fetch('/api/admin/users/all', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (usersResponse.ok) {
+            const users = await usersResponse.json();
+            console.log(`Loading ${users.length} users`);
+            displayAllUsers(users);
         } else {
-            console.log(`Loading ${mockUsers.length} users`);
-            // Display all users
-            displayAllUsers(mockUsers);
+            console.error('Failed to fetch users');
+            displayAllUsers([]);
         }
         
-        if (!mockSchools) {
-            console.error('Error: mockSchools is not defined');
+        // Fetch schools data
+        const schoolsResponse = await fetch('/api/schools');
+        
+        if (schoolsResponse.ok) {
+            const schools = await schoolsResponse.json();
+            console.log(`Loading ${schools.length} schools`);
+            displaySchoolsAdmin(schools);
         } else {
-            console.log(`Loading ${mockSchools.length} schools`);
-            // Display schools for admin
-            displaySchoolsAdmin(mockSchools);
+            console.error('Failed to fetch schools');
+            displaySchoolsAdmin([]);
         }
         
         console.log('Admin dashboard data loaded successfully');
     } catch (error) {
         console.error('Error loading admin data:', error);
-        console.error('Stack trace:', error.stack);
         
-        // Try to show error message on the admin page
-        try {
-            const adminContainer = document.getElementById('admin-page');
-            if (adminContainer) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-danger';
-                errorDiv.textContent = 'Error loading admin dashboard data. Please try refreshing the page.';
-                adminContainer.prepend(errorDiv);
-            }
-        } catch (e) {
-            console.error('Error displaying error message:', e);
+        // Show error message on the admin page
+        const adminContainer = document.getElementById('admin-page');
+        if (adminContainer) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.textContent = 'Error loading admin dashboard data. Please try refreshing the page.';
+            adminContainer.prepend(errorDiv);
+        }
+    } finally {
+        // Hide loading indicator if it was shown
+        if (window.loading && window.loading.hide) {
+            window.loading.hide('admin-page');
         }
     }
 }
@@ -849,10 +682,9 @@ function displayPendingApplications(applications) {
 }
 
 /**
- * Handles approval or rejection of an application
- * DEMO: Simulates API call with local data modification
- * @param {string} id - The application ID
- * @param {string} action - The action to take ('approve' or 'reject')
+ * Handles approve/reject actions for applications
+ * @param {string} id - The ID of the application
+ * @param {string} action - The action to perform ('approve' or 'reject')
  */
 async function handleApplicationAction(id, action) {
     console.log(`handleApplicationAction called with id: ${id}, action: ${action}`);
@@ -869,60 +701,67 @@ async function handleApplicationAction(id, action) {
         return;
     }
     
+    // Show loading indicator if available
+    if (window.loading && window.loading.show) {
+        window.loading.show('admin-page', `${action === 'approve' ? 'Approving' : 'Rejecting'} application...`);
+    }
+    
     try {
-        console.log('Searching for application in mockPendingApplications array');
-        console.log('Current pending applications:', mockPendingApplications.length);
+        // Get auth token
+        const authToken = window.auth?.authToken || localStorage.getItem('authToken');
         
-        // Find application to process
-        const appIndex = mockPendingApplications.findIndex(app => app.id.toString() === id);
-        console.log(`Application index in array: ${appIndex}`);
-        
-        if (appIndex !== -1) {
-            // Store the application data before removing it
-            const applicationData = {...mockPendingApplications[appIndex]};
-            console.log('Found application:', applicationData);
-            
-            // Remove from pending list
-            mockPendingApplications.splice(appIndex, 1);
-            console.log('Removed application from pending list');
-            
-            // If approved, add to users list
-            if (action === 'approve') {
-                console.log('Approving application - adding to users list');
-                
-                const newUser = {
-                    ...applicationData,
-                    role: 'user'
-                };
-                
-                mockUsers.push(newUser);
-                console.log('Added to users list:', newUser);
-                
-                // Also add to alumni list if not already there
-                const existingAlumniIndex = mockAlumni.findIndex(a => a.id === applicationData.id);
-                if (existingAlumniIndex === -1) {
-                    console.log('Adding to alumni list');
-                    mockAlumni.push(newUser);
+        if (action === 'approve') {
+            // Make real API call to approve the application
+            const response = await fetch(`/api/admin/applications/${id}/approve`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
                 }
-            } else {
-                console.log('Rejecting application - not adding to users list');
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Failed to approve application`);
             }
             
-            // Reload admin data
-            console.log('Reloading admin data');
-            loadAdminData();
-            
-            console.log(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
-            alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
+            const result = await response.json();
+            console.log('Application approved:', result);
         } else {
-            console.error(`Application with ID ${id} not found in pending applications`);
-            console.log('Current pending applications:', mockPendingApplications);
-            alert(`Failed to ${action} application. Application not found.`);
+            // For reject action, we need to implement a reject endpoint
+            // For now, we'll use a generic update endpoint to change status
+            const response = await fetch(`/api/admin/applications/${id}/reject`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Failed to reject application`);
+            }
+            
+            const result = await response.json();
+            console.log('Application rejected:', result);
         }
+        
+        // Reload admin data to reflect changes
+        console.log('Reloading admin data');
+        await loadAdminData();
+        
+        console.log(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
+        alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
+        
     } catch (error) {
         console.error('Error handling application action:', error);
-        console.error('Stack trace:', error.stack);
-        alert(`Failed to ${action} application. An error occurred.`);
+        alert(`Failed to ${action} application: ${error.message}`);
+    } finally {
+        // Hide loading indicator if it was shown
+        if (window.loading && window.loading.hide) {
+            window.loading.hide('admin-page');
+        }
     }
 }
 
@@ -956,51 +795,8 @@ function displayAllUsers(users) {
         tbody.appendChild(tr);
     });
     
-    // Add event listeners to buttons
-    document.querySelectorAll('.view-user').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id');
-            window.profile.loadProfile(id);
-            showPage('profile-view');
-        });
-    });
-    
-    document.querySelectorAll('.edit-user-role').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id');
-            // In a real application, this would show a modal to edit the user's role
-            alert('Edit role functionality will be implemented in a future version.');
-        });
-    });
-    
-    document.querySelectorAll('.delete-user').forEach(button => {
-        button.addEventListener('click', async () => {
-            const id = button.getAttribute('data-id');
-            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-                await handleDeleteUser(id);
-            }
-        });
-    });
-}
-
-/**
- * Handles deletion of a user
- * DEMO: Simulates API call with local data modification
- * @param {string} id - The user ID
- */
-async function handleDeleteUser(id) {
-    // Remove the user from users list (in a real app, this would be an API call)
-    const userIndex = mockUsers.findIndex(user => user.id.toString() === id);
-    if (userIndex !== -1) {
-        mockUsers.splice(userIndex, 1);
-        
-        // Reload admin data
-        loadAdminData();
-        
-        alert('User deleted successfully.');
-    } else {
-        alert('Failed to delete user. Please try again later.');
-    }
+    // Add event listeners (implementation needed)
+    // TODO: Implement view, edit, and delete user functionality
 }
 
 /**
@@ -1008,11 +804,11 @@ async function handleDeleteUser(id) {
  * @param {Array} schools - The schools data
  */
 function displaySchoolsAdmin(schools) {
-    const tbody = document.getElementById('schools-list');
+    const tbody = document.getElementById('schools-admin');
     tbody.innerHTML = '';
     
     if (schools.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No schools found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">No schools found</td></tr>';
         return;
     }
     
@@ -1020,10 +816,9 @@ function displaySchoolsAdmin(schools) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${school.name}</td>
-            <td>${school.description || 'No description'}</td>
             <td>${school.alumniCount || 0}</td>
             <td>
-                <button class="btn btn-sm btn-warning edit-school" data-id="${school.id}">Edit</button>
+                <button class="btn btn-sm btn-primary edit-school" data-id="${school.id}">Edit</button>
                 <button class="btn btn-sm btn-danger delete-school" data-id="${school.id}">Delete</button>
             </td>
         `;
@@ -1031,63 +826,35 @@ function displaySchoolsAdmin(schools) {
         tbody.appendChild(tr);
     });
     
-    // Add event listeners to buttons
-    document.querySelectorAll('.edit-school').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id');
-            // In a real application, this would show a modal to edit the school
-            alert('Edit school functionality will be implemented in a future version.');
-        });
-    });
+    // Add event listeners (implementation needed)
+    // TODO: Implement edit and delete school functionality
+}
+
+/**
+ * Handles deletion of a user
+ * @param {number} id - The user ID to delete
+ */
+async function handleDeleteUser(id) {
+    if (!confirm('Are you sure you want to delete this user?')) {
+        return;
+    }
     
-    document.querySelectorAll('.delete-school').forEach(button => {
-        button.addEventListener('click', async () => {
-            const id = button.getAttribute('data-id');
-            if (confirm('Are you sure you want to delete this school? This will affect all alumni associated with it.')) {
-                await handleDeleteSchool(id);
-            }
-        });
-    });
+    // TODO: Implement API call to delete user
+    alert('User deletion not yet implemented');
 }
 
 /**
  * Handles deletion of a school
- * DEMO: Simulates API call with local data modification
- * @param {string} id - The school ID
+ * @param {number} id - The school ID to delete
  */
 async function handleDeleteSchool(id) {
-    // Remove the school from schools list (in a real app, this would be an API call)
-    const schoolIndex = mockSchools.findIndex(school => school.id.toString() === id);
-    if (schoolIndex !== -1) {
-        mockSchools.splice(schoolIndex, 1);
-        
-        // Reload admin data
-        loadAdminData();
-        
-        // Also reload schools for the main page
-        loadSchools();
-        
-        alert('School deleted successfully.');
-    } else {
-        alert('Failed to delete school. Please try again later.');
+    if (!confirm('Are you sure you want to delete this school?')) {
+        return;
     }
+    
+    // TODO: Implement API call to delete school
+    alert('School deletion not yet implemented');
 }
-
-// Make mock data available for other modules
-window.mockData = {
-    schools: mockSchools,
-    alumni: mockAlumni,
-    users: mockUsers,
-    pendingApplications: mockPendingApplications
-};
-
-// Log to verify the mockData was properly initialized
-console.log('mockData initialized:', {
-    schools: window.mockData.schools?.length || 0,
-    alumni: window.mockData.alumni?.length || 0,
-    users: window.mockData.users?.length || 0,
-    pendingApplications: window.mockData.pendingApplications?.length || 0
-});
 
 /**
  * Test server connectivity to the /api/schools endpoint
@@ -1119,51 +886,233 @@ async function testServerConnection(baseUrl = 'http://localhost:3000') {
         }
         
         // Parse the response
-        const data = await response.json();
+        const schools = await response.json();
         
-        // Log success
-        console.log(`✅ Server connection successful! Response time: ${responseTime}ms`);
-        console.log(`Received data for ${data.length} schools:`);
-        console.table(data);
+        // Log results
+        console.log(`✅ Server connection successful!`);
+        console.log(`Response time: ${responseTime}ms`);
+        console.log(`Received ${schools.length} schools`);
         
-        return data;
+        // Print the schools
+        schools.forEach((school, index) => {
+            console.log(`${index + 1}. ${school.name} - ${school.alumni_count || 0} alumni`);
+        });
+        
+        return schools;
     } catch (error) {
-        // Log error details
-        console.error('❌ Server connection failed!');
+        console.error(`❌ Server connection failed:`, error.message);
         
         if (error.message.includes('Failed to fetch')) {
-            console.error('Could not reach the server. Possible causes:');
-            console.error('1. Server is not running on the specified port');
-            console.error('2. CORS is not properly configured on the server');
-            console.error('3. Network or firewall issues are blocking the connection');
-        } else {
-            console.error(`Error: ${error.message}`);
+            console.error('The server might be offline or the URL might be incorrect.');
+            console.error(`Attempted URL: ${baseUrl}/api/schools`);
         }
         
-        // Re-throw the error for further handling
         throw error;
     }
 }
 
-// Export the test function to the global scope for console access
-window.testServerConnection = testServerConnection;
-
-// Auto-run the server test on page load if the URL parameter is set
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('autotest') === 'true') {
-        console.log('Auto-running server connection test...');
-        setTimeout(() => {
-            if (window.serverTest && window.serverTest.run) {
-                window.serverTest.run('server-test-container');
-            } else {
-                testServerConnection().catch(err => console.error('Auto-test failed:', err));
-            }
-        }, 1000); // Slight delay to ensure everything else is loaded
-    }
-});
+/**
+ * Clears all filters in the alumni directory
+ */
+function clearFilters() {
+    document.getElementById('filter-school').value = '0';
+    document.getElementById('filter-year').value = '0';
+    document.getElementById('search-alumni').value = '';
+    loadAlumniDirectory();
+}
 
 // Export key functions to global scope
 window.main = {
     showPage: showPage
 };
+
+// Fix for username display
+(function() {
+    console.log('[USERNAME FIX] Starting username display fix');
+    
+    function updateUsername() {
+        if (window.auth && window.auth.isAuthenticated() && window.auth.getCurrentUser()) {
+            var user = window.auth.getCurrentUser();
+            var userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+                var displayName = (user.firstName || 'User') + ' ' + (user.lastName || '');
+                userNameElement.textContent = displayName.trim();
+                console.log('[USERNAME FIX] Updated username to:', displayName);
+            }
+        }
+    }
+    
+    // Update on load and after delays
+    updateUsername();
+    setTimeout(updateUsername, 500);
+    setTimeout(updateUsername, 1000);
+    
+    // Override auth update function
+    if (window.auth) {
+        var originalUpdate = window.auth.updateUIForLoggedInUser;
+        window.auth.updateUIForLoggedInUser = function(user) {
+            console.log('[USERNAME FIX] Intercepted updateUIForLoggedInUser');
+            if (originalUpdate) {
+                originalUpdate.call(this, user);
+            }
+            updateUsername();
+        };
+    }
+})();
+
+// Navigation debugging and fix
+(function() {
+    console.log('[NAV FIX] Starting navigation fix');
+    
+    // Force fix navigation after a delay to ensure everything is loaded
+    function forceFixNavigation() {
+        console.log('[NAV FIX] Running navigation fix');
+        
+        // Schools link
+        var schoolsLink = document.getElementById('schools-link');
+        if (schoolsLink) {
+            schoolsLink.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[NAV FIX] Schools clicked - direct handler');
+                
+                // Hide all pages first
+                document.querySelectorAll('.container > div').forEach(function(div) {
+                    div.style.display = 'none';
+                });
+                
+                // Show schools page
+                var schoolsPage = document.getElementById('schools-page');
+                if (schoolsPage) {
+                    schoolsPage.style.display = 'block';
+                    console.log('[NAV FIX] Schools page shown');
+                }
+                
+                // Call loadSchools
+                if (typeof loadSchools === 'function') {
+                    loadSchools();
+                }
+                
+                return false;
+            };
+            console.log('[NAV FIX] Schools link fixed');
+        }
+        
+        // Alumni link
+        var alumniLink = document.getElementById('alumni-link');
+        if (alumniLink) {
+            alumniLink.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[NAV FIX] Alumni clicked - direct handler');
+                
+                // Hide all pages first
+                document.querySelectorAll('.container > div').forEach(function(div) {
+                    div.style.display = 'none';
+                });
+                
+                // Show alumni page
+                var alumniPage = document.getElementById('alumni-page');
+                if (alumniPage) {
+                    alumniPage.style.display = 'block';
+                    console.log('[NAV FIX] Alumni page shown');
+                }
+                
+                // Call loadAlumniDirectory
+                if (typeof loadAlumniDirectory === 'function') {
+                    loadAlumniDirectory();
+                }
+                
+                return false;
+            };
+            console.log('[NAV FIX] Alumni link fixed');
+        }
+    }
+    
+    // Run immediately and after delays
+    forceFixNavigation();
+    setTimeout(forceFixNavigation, 500);
+    setTimeout(forceFixNavigation, 1000);
+    
+    // Debug function
+    window.debugNav = function() {
+        console.log('=== NAVIGATION DEBUG ===');
+        console.log('Schools link exists:', !!document.getElementById('schools-link'));
+        console.log('Alumni link exists:', !!document.getElementById('alumni-link'));
+        console.log('Schools page exists:', !!document.getElementById('schools-page'));
+        console.log('Alumni page exists:', !!document.getElementById('alumni-page'));
+        console.log('showPage function exists:', typeof showPage === 'function');
+        console.log('loadSchools function exists:', typeof loadSchools === 'function');
+        console.log('loadAlumniDirectory function exists:', typeof loadAlumniDirectory === 'function');
+        
+        // Check current event listeners
+        var schoolsLink = document.getElementById('schools-link');
+        if (schoolsLink) {
+            console.log('Schools link onclick:', schoolsLink.onclick);
+        }
+        var alumniLink = document.getElementById('alumni-link');
+        if (alumniLink) {
+            console.log('Alumni link onclick:', alumniLink.onclick);
+        }
+    };
+    
+    console.log('[NAV FIX] Navigation fix loaded. Run debugNav() to check status.');
+})();
+
+// Extreme navigation fix - add this to ensure navigation works
+window.addEventListener('load', function() {
+    console.log('[EXTREME NAV FIX] Window loaded, applying final fixes');
+    
+    // Test the navigation immediately
+    var testNav = function() {
+        var schoolsLink = document.getElementById('schools-link');
+        var alumniLink = document.getElementById('alumni-link');
+        
+        if (schoolsLink && alumniLink) {
+            console.log('[EXTREME NAV FIX] Both links found, fixing handlers');
+            
+            // Schools
+            schoolsLink.onclick = null;
+            schoolsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[EXTREME NAV FIX] Schools clicked!');
+                alert('Schools clicked - check console for debug info');
+                debugNav();
+                
+                // Direct page manipulation
+                document.querySelectorAll('.container > div').forEach(function(div) {
+                    div.style.display = 'none';
+                });
+                var schoolsPage = document.getElementById('schools-page');
+                if (schoolsPage) {
+                    schoolsPage.style.display = 'block';
+                }
+                loadSchools();
+            });
+            
+            // Alumni
+            alumniLink.onclick = null;
+            alumniLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[EXTREME NAV FIX] Alumni clicked!');
+                alert('Alumni clicked - check console for debug info');
+                debugNav();
+                
+                // Direct page manipulation
+                document.querySelectorAll('.container > div').forEach(function(div) {
+                    div.style.display = 'none';
+                });
+                var alumniPage = document.getElementById('alumni-page');
+                if (alumniPage) {
+                    alumniPage.style.display = 'block';
+                }
+                loadAlumniDirectory();
+            });
+        }
+    };
+    
+    testNav();
+    setTimeout(testNav, 2000);
+});

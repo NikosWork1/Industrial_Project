@@ -177,119 +177,15 @@ app.get('/api/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// POST /api/auth/login - Login endpoint
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Find user by email
-    const user = await User.findOne({
-      where: { email },
-      include: [{
-        model: School,
-        attributes: ['name']
-      }]
-    });
-    
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
-    
-    // Check password
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
-    
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-    
-    // Create and sign JWT
-    const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role, 
-        firstName: user.firstName, 
-        lastName: user.lastName,
-        schoolId: user.schoolId,
-        schoolName: user.School ? user.School.name : null
-      }, 
-      JWT_SECRET,
-      { expiresIn: config.jwt.expiresIn }
-    );
-    
-    // Return user info (without password) and token
-    const userObj = user.toJSON();
-    delete userObj.password;
-    userObj.schoolName = userObj.School ? userObj.School.name : null;
-    delete userObj.School;
-    
-    res.json({ 
-      token, 
-      user: userObj
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed' });
-  }
-});
+// Import authentication routes
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
 
-// POST /api/auth/register - Registration endpoint
-app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { 
-      firstName, lastName, email, password, 
-      schoolId, graduationYear, degree, 
-      currentPosition, company, bio, 
-      linkedinUrl, isPublic
-    } = req.body;
-    
-    // Check if email already exists
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
-    }
-    
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Find school if provided
-    let schoolName = null;
-    if (schoolId) {
-      const school = await School.findByPk(schoolId);
-      if (school) {
-        schoolName = school.name;
-      }
-    }
-    
-    // Create a new pending user
-    await User.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      role: 'pending',
-      schoolId: schoolId ? parseInt(schoolId) : null,
-      graduationYear: graduationYear ? parseInt(graduationYear) : null,
-      degree,
-      currentPosition,
-      company,
-      bio,
-      linkedinUrl,
-      isPublic: isPublic === true || isPublic === 'true',
-    });
-    
-    res.status(201).json({ 
-      message: 'Registration successful. Your application is pending approval.' 
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Registration failed' });
-  }
-});
+// Authentication routes
+app.use('/api/auth', authRoutes);
+
+// Admin routes (protected by authentication and admin middleware)
+app.use('/api/admin', authenticateToken, isAdmin, adminRoutes);
 
 // PUT /api/users/:id - Update user profile
 app.put('/api/users/:id', authenticateToken, async (req, res) => {
