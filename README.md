@@ -91,11 +91,3 @@ For development with auto-restart on file changes:
 npm run dev
 ```
 
-## Notes
-
-This is a demo application with mock data. In a production environment, you would:
-- Use a proper database (PostgreSQL, MongoDB, etc.)
-- Implement more robust error handling
-- Set up environment variables for sensitive information
-- Use HTTPS for secure connections
-- Implement email verification
