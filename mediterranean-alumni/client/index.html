@@ -41,7 +41,7 @@
                     <button class="btn btn-light me-2" id="login-btn">Login</button>
                     <button class="btn btn-outline-light" id="register-btn">Register</button>
                 </div>
-                <div class="d-flex" id="user-profile" style="display: none;">
+                <div class="d-flex" id="user-profile" style="display: none !important;">
                     <div class="dropdown">
                         <button class="btn btn-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown">
                             <span id="user-name">User</span>
@@ -65,15 +65,12 @@
             <div class="p-5 mb-4 bg-light rounded-3">
                 <div class="container-fluid py-5">
                     <div class="row align-items-center">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <h1 class="display-5 fw-bold">Welcome to Mediterranean College Alumni Network</h1>
                             <p class="fs-4">Connect with fellow graduates, build your professional network, and stay updated with college news and events.</p>
                             <button class="btn btn-primary btn-lg" id="join-now-btn">
                                 <i class="fas fa-user-plus me-2"></i>Join Now
                             </button>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <img src="images/icons/college-icon-large.svg" alt="Mediterranean College" class="img-fluid" style="max-width: 200px; margin-bottom: 20px;">
                         </div>
                     </div>
                 </div>
@@ -438,5 +435,45 @@
     <!-- Then load the modules that depend on mockData -->
     <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
+    <script>
+    function updateNavbarVisibility() {
+        console.log('updateNavbarVisibility called');
+        const authButtons = document.getElementById('auth-buttons');
+        const userProfile = document.getElementById('user-profile');
+        const adminLinkContainer = document.getElementById('admin-link-container');
+        
+        const isLoggedIn = localStorage.getItem('user') !== null;
+        console.log('Is user logged in:', isLoggedIn);
+        
+        if (isLoggedIn) {
+            console.log('User is logged in, showing profile');
+            authButtons.style.display = 'none';
+            userProfile.style.display = 'flex';
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.role === 'admin') {
+                adminLinkContainer.style.display = 'block';
+            } else {
+                adminLinkContainer.style.display = 'none';
+            }
+            
+            document.getElementById('user-name').textContent = user.name || 'User';
+        } else {
+            console.log('User is not logged in, showing auth buttons');
+            authButtons.style.display = 'flex';
+            userProfile.style.display = 'none';
+            adminLinkContainer.style.display = 'none';
+        }
+    }
+
+    // Make sure the function runs when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded');
+        updateNavbarVisibility();
+    });
+
+    // Also run it immediately in case DOMContentLoaded already fired
+    updateNavbarVisibility();
+    </script>
 </body>
 </html>
