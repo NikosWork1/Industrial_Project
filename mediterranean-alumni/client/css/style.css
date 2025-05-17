@@ -6,12 +6,15 @@ body {
     color: #333;
     background-color: #f8f9fa;
     line-height: 1.6;
+    padding-bottom: 300px; /* Adjust this value based on your footer height */
+    min-height: 100vh;
+    position: relative;
 }
 
 /* Custom Colors */
 .navbar {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(90deg, #0056b3 0%, #007bff 100%) !important;
+    background: linear-gradient(90deg, #6a1b9a 0%, #9c27b0 100%) !important;
 }
 
 .navbar-brand img {
@@ -19,16 +22,16 @@ body {
 }
 
 .btn-primary {
-    background-color: #0056b3;
-    border-color: #0056b3;
+    background-color: #6a1b9a;
+    border-color: #6a1b9a;
     transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-    background-color: #003d80;
-    border-color: #003d80;
+    background-color: #4a148c;
+    border-color: #4a148c;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
+    box-shadow: 0 4px 8px rgba(106, 27, 154, 0.3);
 }
 
 /* Profile styles */
@@ -65,11 +68,11 @@ body {
 }
 
 .profile-card .card-header {
-    background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+    background: linear-gradient(90deg, #6a1b9a 0%, #9c27b0 100%);
 }
 
 #profile-name {
-    color: #0056b3;
+    color: #6a1b9a;
     font-weight: 600;
 }
 
@@ -115,13 +118,17 @@ body {
 }
 
 .card-title {
-    color: #0056b3;
+    color: #6a1b9a;
 }
 
 /* Footer tweaks */
 footer {
     background: linear-gradient(90deg, #222 0%, #444 100%) !important;
-    margin-top: 50px !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 footer a {
@@ -147,7 +154,7 @@ footer a:hover {
 }
 
 .nav-tabs .nav-link.active {
-    color: #0056b3;
+    color: #6a1b9a;
     border-color: #dee2e6 #dee2e6 #fff;
 }
 
@@ -179,8 +186,8 @@ footer a:hover {
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #9c27b0;
+    box-shadow: 0 0 0 0.2rem rgba(156, 39, 176, 0.25);
 }
 
 label {
@@ -202,7 +209,7 @@ label {
 }
 
 #search-alumni:focus, .form-select:focus {
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.4);
 }
 
 /* Animation effects */
@@ -252,4 +259,14 @@ label {
     h1.display-5 {
         font-size: calc(1.4rem + 1.5vw);
     }
+}
+
+/* Stay Connected section styling */
+.bg-primary {
+    background: linear-gradient(90deg, #6a1b9a 0%, #9c27b0 100%) !important;
+}
+
+.btn-outline-light:hover {
+    background-color: #4a148c;
+    border-color: #4a148c;
 }

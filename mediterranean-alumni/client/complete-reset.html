@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complete Reset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #c82333;
+        }
+        .info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .log {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Complete Authentication Reset</h1>
+    
+    <div class="info">
+        <p>This page will completely reset all authentication data and ensure the system works correctly.</p>
+        <p>Use this if you're experiencing persistent login/logout issues.</p>
+    </div>
+    
+    <button onclick="completeReset()">Complete Reset</button>
+    
+    <div id="log" class="log"></div>
+    
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.textContent += message + '\n';
+        }
+        
+        function completeReset() {
+            log('Starting complete reset...\n');
+            
+            // Clear everything
+            log('Clearing localStorage...');
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                log(`  Removing: ${key}`);
+                localStorage.removeItem(key);
+            });
+            
+            log('\nClearing sessionStorage...');
+            sessionStorage.clear();
+            
+            log('\nClearing all cookies...');
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            log('\nChecking if anything remains...');
+            if (Object.keys(localStorage).length > 0) {
+                log('WARNING: Some localStorage items remain!');
+                localStorage.clear();
+            }
+            
+            log('\nReset complete!');
+            log('Redirecting to main page in 3 seconds...');
+            log('\nThe page should now work correctly:');
+            log('- Login/Register buttons should show when not logged in');
+            log('- User dropdown should show only when logged in');
+            log('- Admin link should show only for admin users');
+            log('- Everything should persist correctly on refresh');
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

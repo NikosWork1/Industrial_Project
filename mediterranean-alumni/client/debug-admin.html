@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Admin UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #d1ecf1; }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Admin UI</h1>
+    
+    <div id="output" class="status info"></div>
+    
+    <button onclick="checkAdminUI()">Check Admin UI State</button>
+    <button onclick="forceAdminUI()">Force Admin UI Update</button>
+    <button onclick="simulateAdminLogin()">Simulate Admin Login</button>
+    <button onclick="clearAndCheck()">Clear & Check</button>
+    
+    <h2>Quick Actions</h2>
+    <button onclick="window.location.href='/'">Go to Main Page</button>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += message + '\n';
+        }
+        
+        function checkAdminUI() {
+            log('\n=== Checking Admin UI State ===');
+            
+            // Check auth token
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                log('No auth token found');
+            } else {
+                try {
+                    const parts = token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    log('User: ' + payload.email);
+                    log('Role: ' + payload.role);
+                    log('Is Admin: ' + (payload.role === 'admin'));
+                } catch (e) {
+                    log('Invalid token');
+                }
+            }
+            
+            // Check DOM elements
+            const authButtons = document.getElementById('auth-buttons');
+            const userProfile = document.getElementById('user-profile');
+            const adminLink = document.getElementById('admin-link-container');
+            
+            log('\nDOM Elements:');
+            log('auth-buttons: ' + (authButtons ? authButtons.style.display : 'not found'));
+            log('user-profile: ' + (userProfile ? userProfile.style.display : 'not found'));
+            log('admin-link: ' + (adminLink ? adminLink.style.display : 'not found'));
+            
+            // Check if functions are available
+            log('\nFunctions available:');
+            log('forceAuthUIUpdate: ' + (typeof window.forceAuthUIUpdate));
+            log('fixAdminUI: ' + (typeof window.fixAdminUI));
+            log('AuthManager: ' + (typeof window.AuthManager));
+        }
+        
+        function forceAdminUI() {
+            log('\n=== Forcing Admin UI Update ===');
+            
+            if (window.forceAuthUIUpdate) {
+                log('Calling forceAuthUIUpdate()');
+                window.forceAuthUIUpdate();
+            }
+            
+            if (window.fixAdminUI) {
+                log('Calling fixAdminUI()');
+                window.fixAdminUI();
+            }
+            
+            if (window.AuthManager && window.AuthManager.updateUI) {
+                log('Calling AuthManager.updateUI()');
+                window.AuthManager.updateUI();
+            }
+            
+            setTimeout(() => {
+                log('\nChecking results after update:');
+                checkAdminUI();
+            }, 100);
+        }
+        
+        function simulateAdminLogin() {
+            log('\n=== Simulating Admin Login ===');
+            
+            // Create a mock admin token
+            const header = btoa(JSON.stringify({alg: "HS256", typ: "JWT"}));
+            const payload = btoa(JSON.stringify({
+                id: 1,
+                email: "admin@medcollege.edu",
+                role: "admin",
+                firstName: "Admin",
+                lastName: "User",
+                exp: Math.floor(Date.now() / 1000) + 3600
+            }));
+            const signature = "mock-signature";
+            
+            const mockToken = `${header}.${payload}.${signature}`;
+            localStorage.setItem('authToken', mockToken);
+            
+            log('Mock admin token created');
+            
+            forceAdminUI();
+        }
+        
+        function clearAndCheck() {
+            log('\n=== Clearing Auth & Checking ===');
+            localStorage.removeItem('authToken');
+            log('Auth token cleared');
+            
+            forceAdminUI();
+        }
+        
+        // Initial check
+        window.onload = checkAdminUI;
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset Authentication</title>
+</head>
+<body>
+    <h1>Authentication Reset</h1>
+    <p>This page will clear all authentication data and redirect you to the main page.</p>
+    <script>
+        console.log('Clearing all authentication data...');
+        
+        // Clear everything
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Remove specific items just to be sure
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
+        
+        console.log('All authentication data cleared!');
+        
+        // Redirect to main page
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+    </script>
+</body>
+</html>

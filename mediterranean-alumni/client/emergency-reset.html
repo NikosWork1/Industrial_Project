@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergency Auth Reset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #c82333;
+        }
+        .log {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emergency Authentication Reset</h1>
+    <p>Click the button below to completely clear all authentication data and fix any UI issues.</p>
+    
+    <button onclick="emergencyReset()">Emergency Reset</button>
+    
+    <div id="log" class="log"></div>
+    
+    <script>
+        function emergencyReset() {
+            const log = document.getElementById('log');
+            log.textContent = '';
+            
+            function addLog(message) {
+                log.textContent += message + '\n';
+            }
+            
+            addLog('Starting emergency reset...');
+            
+            // Clear all storage
+            addLog('Clearing localStorage...');
+            const localStorageKeys = Object.keys(localStorage);
+            localStorageKeys.forEach(key => {
+                addLog(`  Removing: ${key}`);
+                localStorage.removeItem(key);
+            });
+            
+            addLog('Clearing sessionStorage...');
+            sessionStorage.clear();
+            
+            addLog('Clearing cookies...');
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            addLog('\nReset complete!');
+            addLog('Redirecting to main page in 3 seconds...');
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+        }
+    </script>
+    
+    <hr style="margin-top: 50px;">
+    <p><a href="/">← Back to main site</a></p>
+</body>
+</html>

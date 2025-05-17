@@ -8,6 +8,40 @@
 let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 
+// Function to check if token is actually valid
+function isValidAuthToken(token) {
+    if (!token) return false;
+    
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return false;
+        
+        const payload = JSON.parse(atob(parts[1]));
+        
+        // Check if expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+            return false;
+        }
+        
+        // Check if pending
+        if (payload.role === 'pending') {
+            return false;
+        }
+        
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Validate token on load
+if (!isValidAuthToken(authToken)) {
+    console.log('Invalid or expired token on load - clearing');
+    localStorage.removeItem('authToken');
+    authToken = null;
+    currentUser = null;
+}
+
 // Parse JWT token (if any) and get user data
 if (authToken) {
     try {
@@ -37,14 +71,22 @@ if (authToken) {
             schoolName: payload.schoolName
         };
         
-        // Make sure DOM is ready before updating UI
-        document.addEventListener('DOMContentLoaded', () => {
-            updateUIForLoggedInUser(currentUser);
-        });
-        
-        // If DOM is already loaded, update UI immediately
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            updateUIForLoggedInUser(currentUser);
+        // If user role is pending, clear the token and don't show as logged in
+        if (currentUser.role === 'pending') {
+            console.log('Pending user detected, clearing authentication');
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+        } else {
+            // Make sure DOM is ready before updating UI
+            document.addEventListener('DOMContentLoaded', () => {
+                updateUIForLoggedInUser(currentUser);
+            });
+            
+            // If DOM is already loaded, update UI immediately
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                updateUIForLoggedInUser(currentUser);
+            }
         }
     } catch (e) {
         console.error('Error processing auth token:', e);
@@ -130,17 +172,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Store the JWT token
-            authToken = data.token;
-            localStorage.setItem('authToken', authToken);
-            console.log('JWT token saved to localStorage');
-            
-            // Parse and store user data
-            currentUser = data.user;
+            // Only store token if login was successful
+            if (data.success && data.token) {
+                // Store the JWT token
+                authToken = data.token;
+                localStorage.setItem('authToken', authToken);
+                console.log('JWT token saved to localStorage');
+                
+                // Parse and store user data
+                currentUser = data.user;
+            } else {
+                throw new Error('Login failed - no token received');
+            }
             console.log('User data received:', currentUser);
+            console.log('User role:', currentUser.role);
+            console.log('Is admin:', currentUser.role === 'admin');
             
             // Update UI for logged-in user
             updateUIForLoggedInUser(currentUser);
+            
+            // Force immediate navbar update
+            console.log('Forcing navbar update after login');
+            if (window.updateNavbarAuth) {
+                window.updateNavbarAuth();
+            }
+            // Also update using AuthManager if available
+            if (window.AuthManager) {
+                window.AuthManager.updateUI();
+            }
             
             // Clear the login form
             loginForm.reset();
@@ -154,20 +213,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.loading.show('login-form', successMessage);
             }
             
-            // Redirect to home page
+            // Force UI updates for admin users
+            if (currentUser && currentUser.role === 'admin') {
+                console.log('Admin user logged in - forcing UI updates');
+                if (window.forceAuthUIUpdate) window.forceAuthUIUpdate();
+                if (window.fixAdminUI) window.fixAdminUI();
+            }
+            
+            // Show success message briefly, then reload page
             setTimeout(() => {
-                if (window.main && typeof window.main.showPage === 'function') {
-                    window.main.showPage('home-page');
-                } else {
-                    // Otherwise use our local implementation
-                    showPage('home-page');
-                }
-                
-                // Hide loading after redirect
-                if (window.loading && window.loading.hide) {
-                    window.loading.hide('login-form');
-                }
-            }, 500); // Small delay to show success message
+                // Auto-refresh the page to ensure UI is in sync
+                console.log('Login successful - refreshing page');
+                window.location.reload();
+            }, 300); // Brief delay to show success message
             
         } catch (error) {
             console.error('Login error:', error);
@@ -372,6 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         console.log('Logout clicked - clearing authentication data');
+        console.log('Current user before logout:', currentUser);
         
         try {
             // Show loading indicator if available
@@ -382,25 +441,52 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear ALL authentication-related data
             authToken = null;
             currentUser = null;
-            localStorage.removeItem('authToken');
-            sessionStorage.removeItem('authToken'); // In case you're using session storage too
             
-            // Clear any cached user data
-            if (window.sessionStorage) {
-                window.sessionStorage.clear();
+            // Force clear from localStorage
+            console.log('Clearing authToken from localStorage');
+            localStorage.removeItem('authToken');
+            
+            // Double check it's gone
+            if (localStorage.getItem('authToken')) {
+                console.error('Failed to remove authToken!');
+                localStorage.clear(); // Nuclear option
             }
             
+            // Clear any other auth data
+            localStorage.removeItem('user');
+            localStorage.removeItem('currentUser');
+            sessionStorage.clear();
+            
             // Update UI for logged out state
+            console.log('Calling updateUIForLoggedOutUser');
             updateUIForLoggedOutUser();
+            
+            // Force immediate navbar update
+            console.log('Forcing navbar update after logout');
+            if (window.updateNavbarAuth) {
+                window.updateNavbarAuth();
+            }
+            // Also update using AuthManager if available
+            if (window.AuthManager) {
+                window.AuthManager.updateUI();
+            }
             
             // Force reset of UI elements
             const authButtons = document.getElementById('auth-buttons');
             const userProfile = document.getElementById('user-profile');
             const adminLinkContainer = document.getElementById('admin-link-container');
             
-            if (authButtons) authButtons.style.display = 'flex';
-            if (userProfile) userProfile.style.display = 'none';
-            if (adminLinkContainer) adminLinkContainer.style.display = 'none';
+            if (authButtons) {
+                authButtons.style.display = 'flex';
+                authButtons.classList.remove('d-none');
+            }
+            if (userProfile) {
+                userProfile.style.display = 'none';
+                userProfile.classList.add('d-none');
+            }
+            if (adminLinkContainer) {
+                adminLinkContainer.style.display = 'none';
+            }
             
             // Update UI elements in the header
             const adminUserDropdown = document.querySelector('.dropdown-toggle');
@@ -408,17 +494,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminUserDropdown.style.display = 'none';
             }
             
-            console.log('Logout complete - redirecting to home page');
+            console.log('Logout complete');
             
-            // Show logout message
+            // Final check - make sure token is really gone
+            const checkToken = localStorage.getItem('authToken');
+            if (checkToken) {
+                console.error('Token still exists after logout! Force clearing...');
+                localStorage.clear();
+            }
+            
+            // Auto-refresh the page to ensure UI is in sync
+            console.log('Logout successful - refreshing page');
+            
+            // Show brief message then reload
             alert('You have been logged out successfully.');
             
-            // Redirect to home page
-            if (window.main && typeof window.main.showPage === 'function') {
-                window.main.showPage('home-page');
-            } else {
-                showPage('home-page');
-            }
+            setTimeout(() => {
+                window.location.reload();
+            }, 100);
             
         } catch (error) {
             console.error('Error during logout:', error);
@@ -451,6 +544,16 @@ function updateUIForLoggedInUser(user) {
         const userProfile = document.getElementById('user-profile');
         const userName = document.getElementById('user-name');
         const adminLinkContainer = document.getElementById('admin-link-container');
+        
+        // Check if user is pending approval
+        if (user.role === 'pending') {
+            console.log('User is pending approval, keeping auth buttons visible');
+            // Keep auth buttons visible for pending users
+            if (authButtons) authButtons.style.display = 'flex';
+            if (userProfile) userProfile.style.display = 'none';
+            if (adminLinkContainer) adminLinkContainer.style.display = 'none';
+            return;
+        }
         
         // Check if elements exist
         if (!authButtons) {
@@ -593,7 +696,14 @@ window.auth = {
     getCurrentUser,
     getAuthToken,
     updateUIForLoggedInUser,
-    updateUIForLoggedOutUser
+    updateUIForLoggedOutUser,
+    clearAuth: () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        currentUser = null;
+        authToken = null;
+        updateUIForLoggedOutUser();
+    }
 };
 
 // Helper function to handle page navigation

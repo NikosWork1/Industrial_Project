@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .debug {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Login Test</h1>
+    
+    <div id="status"></div>
+    
+    <h2>Quick Admin Login</h2>
+    <button class="btn-primary" onclick="loginAsAdmin()">Login as Admin</button>
+    <button class="btn-danger" onclick="logout()">Logout</button>
+    <button class="btn-primary" onclick="checkUIState()">Check UI State</button>
+    
+    <h2>Debug Output</h2>
+    <div id="debug" class="debug"></div>
+    
+    <hr>
+    <p><a href="/">← Back to main site</a></p>
+    
+    <script>
+        function log(message) {
+            const debug = document.getElementById('debug');
+            debug.textContent += new Date().toISOString() + ' - ' + message + '\n';
+            console.log(message);
+        }
+        
+        async function loginAsAdmin() {
+            log('Attempting admin login...');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@medcollege.edu',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.success && data.token) {
+                    log('Login successful! Storing token...');
+                    localStorage.setItem('authToken', data.token);
+                    
+                    // Decode token to check contents
+                    const parts = data.token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    log('Token payload: ' + JSON.stringify(payload, null, 2));
+                    
+                    log('Calling forceAuthUIUpdate...');
+                    if (window.opener && window.opener.forceAuthUIUpdate) {
+                        window.opener.forceAuthUIUpdate();
+                        log('UI update called on main window');
+                    } else {
+                        log('No access to main window UI update function');
+                    }
+                    
+                    document.getElementById('status').innerHTML = 
+                        '<div class="status success">Admin login successful!</div>';
+                } else {
+                    throw new Error(data.message || 'Login failed');
+                }
+            } catch (error) {
+                log('Error: ' + error.message);
+                document.getElementById('status').innerHTML = 
+                    '<div class="status error">Login failed: ' + error.message + '</div>';
+            }
+            
+            checkUIState();
+        }
+        
+        function logout() {
+            log('Logging out...');
+            localStorage.removeItem('authToken');
+            
+            if (window.opener && window.opener.forceAuthUIUpdate) {
+                window.opener.forceAuthUIUpdate();
+                log('UI update called on main window');
+            }
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status info">Logged out</div>';
+            
+            checkUIState();
+        }
+        
+        function checkUIState() {
+            log('\n=== Checking UI State ===');
+            
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const parts = token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    log('Current user: ' + payload.email);
+                    log('Role: ' + payload.role);
+                    log('Token expires: ' + new Date(payload.exp * 1000));
+                } catch (e) {
+                    log('Invalid token: ' + e.message);
+                }
+            } else {
+                log('No auth token found');
+            }
+            
+            // Check DOM elements
+            if (window.opener) {
+                const doc = window.opener.document;
+                const authButtons = doc.getElementById('auth-buttons');
+                const userProfile = doc.getElementById('user-profile');
+                const adminLink = doc.getElementById('admin-link-container');
+                
+                log('\nDOM State in main window:');
+                log('auth-buttons display: ' + (authButtons ? authButtons.style.display : 'not found'));
+                log('user-profile display: ' + (userProfile ? userProfile.style.display : 'not found'));
+                log('admin-link display: ' + (adminLink ? adminLink.style.display : 'not found'));
+            } else {
+                log('Cannot access main window DOM');
+            }
+            
+            log('=== End UI State Check ===\n');
+        }
+        
+        // Initial check
+        window.onload = checkUIState;
+    </script>
+</body>
+</html>

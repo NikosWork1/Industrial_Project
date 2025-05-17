@@ -65,15 +65,12 @@
             <div class="p-5 mb-4 bg-light rounded-3">
                 <div class="container-fluid py-5">
                     <div class="row align-items-center">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <h1 class="display-5 fw-bold">Welcome to Mediterranean College Alumni Network</h1>
                             <p class="fs-4">Connect with fellow graduates, build your professional network, and stay updated with college news and events.</p>
                             <button class="btn btn-primary btn-lg" id="join-now-btn">
                                 <i class="fas fa-user-plus me-2"></i>Join Now
                             </button>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <img src="images/icons/college-icon-large.svg" alt="Mediterranean College" class="img-fluid" style="max-width: 200px; margin-bottom: 20px;">
                         </div>
                     </div>
                 </div>
@@ -433,10 +430,16 @@
     <!-- Main JavaScript -->
     <script src="js/loading.js"></script>
     <script src="js/server-test.js"></script>
-    <!-- Load main.js first for mockData initialization -->
+    <!-- Load main.js first -->
     <script src="js/main.js"></script>
-    <!-- Then load the modules that depend on mockData -->
+    <!-- Authentication Manager for UI updates -->
+    <script src="js/auth-manager.js"></script>
+    <!-- Then load the modules -->
     <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
+    <!-- Simple auth fix -->
+    <script src="js/simple-auth-fix.js"></script>
+    <!-- Auto-refresh UI -->
+    <script src="js/auto-refresh-ui.js"></script>
 </body>
 </html>

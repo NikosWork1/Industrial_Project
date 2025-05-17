@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Navbar Updates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .info { background-color: #e3f2fd; }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #2196f3;
+            color: white;
+        }
+        #output {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Navbar Updates</h1>
+    
+    <div id="output"></div>
+    
+    <h2>Actions</h2>
+    <button onclick="checkNavbar()">Check Navbar State</button>
+    <button onclick="testLogin()">Test Login (Regular User)</button>
+    <button onclick="testAdminLogin()">Test Login (Admin)</button>
+    <button onclick="testLogout()">Test Logout</button>
+    <button onclick="forceUpdate()">Force Update</button>
+    
+    <h2>Navigation</h2>
+    <button onclick="window.location.href='/'">Go to Main Page</button>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += new Date().toTimeString().split(' ')[0] + ' - ' + message + '\n';
+            console.log(message);
+        }
+        
+        function checkNavbar() {
+            log('\n=== Checking Navbar State ===');
+            
+            // Check token
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const parts = token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    log('Logged in as: ' + payload.email);
+                    log('Role: ' + payload.role);
+                } catch (e) {
+                    log('Invalid token');
+                }
+            } else {
+                log('Not logged in');
+            }
+            
+            // Check DOM
+            if (window.opener) {
+                const doc = window.opener.document;
+                const authButtons = doc.getElementById('auth-buttons');
+                const userProfile = doc.getElementById('user-profile');
+                const adminLink = doc.getElementById('admin-link-container');
+                
+                log('\nMain window navbar state:');
+                log('auth-buttons: ' + (authButtons ? authButtons.style.display : 'not found'));
+                log('user-profile: ' + (userProfile ? userProfile.style.display : 'not found'));
+                log('admin-link: ' + (adminLink ? adminLink.style.display : 'not found'));
+            } else {
+                log('Cannot access main window');
+            }
+            
+            // Local check
+            const authButtons = document.getElementById('auth-buttons');
+            const userProfile = document.getElementById('user-profile');
+            const adminLink = document.getElementById('admin-link-container');
+            
+            log('\nThis window navbar state:');
+            log('auth-buttons: ' + (authButtons ? authButtons.style.display : 'not found'));
+            log('user-profile: ' + (userProfile ? userProfile.style.display : 'not found'));
+            log('admin-link: ' + (adminLink ? adminLink.style.display : 'not found'));
+        }
+        
+        function testLogin() {
+            log('\n=== Testing Regular User Login ===');
+            
+            // Create mock user token
+            const header = btoa(JSON.stringify({alg: "HS256", typ: "JWT"}));
+            const payload = btoa(JSON.stringify({
+                id: 2,
+                email: "user@example.com",
+                role: "user",
+                firstName: "Test",
+                lastName: "User",
+                exp: Math.floor(Date.now() / 1000) + 3600
+            }));
+            const signature = "mock-signature";
+            
+            const token = `${header}.${payload}.${signature}`;
+            localStorage.setItem('authToken', token);
+            
+            log('User token created');
+            forceUpdate();
+        }
+        
+        function testAdminLogin() {
+            log('\n=== Testing Admin Login ===');
+            
+            // Create mock admin token
+            const header = btoa(JSON.stringify({alg: "HS256", typ: "JWT"}));
+            const payload = btoa(JSON.stringify({
+                id: 1,
+                email: "admin@medcollege.edu",
+                role: "admin",
+                firstName: "Admin",
+                lastName: "User",
+                exp: Math.floor(Date.now() / 1000) + 3600
+            }));
+            const signature = "mock-signature";
+            
+            const token = `${header}.${payload}.${signature}`;
+            localStorage.setItem('authToken', token);
+            
+            log('Admin token created');
+            forceUpdate();
+        }
+        
+        function testLogout() {
+            log('\n=== Testing Logout ===');
+            localStorage.removeItem('authToken');
+            log('Token removed');
+            forceUpdate();
+        }
+        
+        function forceUpdate() {
+            log('\n=== Forcing UI Update ===');
+            
+            // Try all available update functions
+            if (window.updateNavbarAuth) {
+                log('Calling updateNavbarAuth()');
+                window.updateNavbarAuth();
+            }
+            
+            if (window.opener && window.opener.updateNavbarAuth) {
+                log('Calling updateNavbarAuth() on main window');
+                window.opener.updateNavbarAuth();
+            }
+            
+            setTimeout(() => {
+                log('Checking state after update:');
+                checkNavbar();
+            }, 100);
+        }
+        
+        // Initial check
+        window.onload = () => {
+            log('Test page loaded');
+            checkNavbar();
+        };
+    </script>
+</body>
+</html>

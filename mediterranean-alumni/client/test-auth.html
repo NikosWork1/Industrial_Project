@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Authentication State</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Authentication State Test</h1>
+    
+    <div id="status"></div>
+    
+    <h2>Actions</h2>
+    <button class="btn-primary" onclick="checkAuth()">Check Auth State</button>
+    <button class="btn-danger" onclick="clearAuth()">Clear Auth</button>
+    <button class="btn-success" onclick="simulateLogin()">Simulate Login</button>
+    
+    <h2>Debug Info</h2>
+    <pre id="debug"></pre>
+    
+    <script>
+        function checkAuth() {
+            const statusDiv = document.getElementById('status');
+            const debugDiv = document.getElementById('debug');
+            
+            const authToken = localStorage.getItem('authToken');
+            let status = '';
+            let debugInfo = {};
+            
+            if (authToken) {
+                try {
+                    const tokenParts = authToken.split('.');
+                    if (tokenParts.length === 3) {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        debugInfo.tokenPayload = payload;
+                        
+                        if (payload.exp && payload.exp * 1000 > Date.now()) {
+                            status = `<div class="status success">Valid token for: ${payload.email} (${payload.role})</div>`;
+                        } else {
+                            status = `<div class="status error">Token expired</div>`;
+                        }
+                    } else {
+                        status = `<div class="status error">Invalid token format</div>`;
+                    }
+                } catch (e) {
+                    status = `<div class="status error">Error parsing token: ${e.message}</div>`;
+                }
+            } else {
+                status = `<div class="status info">No auth token found</div>`;
+            }
+            
+            debugInfo.localStorage = Object.keys(localStorage);
+            debugInfo.authToken = authToken ? authToken.substring(0, 50) + '...' : null;
+            
+            statusDiv.innerHTML = status;
+            debugDiv.textContent = JSON.stringify(debugInfo, null, 2);
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('currentUser');
+            checkAuth();
+            alert('Authentication cleared!');
+        }
+        
+        function simulateLogin() {
+            // Create a fake JWT token for testing
+            const header = btoa(JSON.stringify({alg: "HS256", typ: "JWT"}));
+            const payload = btoa(JSON.stringify({
+                id: 1,
+                email: "test@example.com",
+                firstName: "Test",
+                lastName: "User",
+                role: "user",
+                exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+            }));
+            const signature = "fake-signature";
+            
+            const fakeToken = `${header}.${payload}.${signature}`;
+            localStorage.setItem('authToken', fakeToken);
+            checkAuth();
+            alert('Simulated login created!');
+        }
+        
+        // Check auth state on load
+        window.onload = checkAuth;
+    </script>
+    
+    <hr>
+    <p><a href="/">← Back to main site</a></p>
+</body>
+</html>
