@@ -28,12 +28,17 @@ git clone <repository-url>
 npm install
 ```
 
-3. Start the server:
+3. Initialize the database:
+```
+npm run init-db
+```
+   
+4. Start the server:
 ```
 npm start
 ```
 
-4. Access the application:
+5. Access the application:
 Open your browser and navigate to `http://localhost:3000`
 
 ## Login Credentials
